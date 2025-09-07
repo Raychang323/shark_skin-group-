@@ -1,13 +1,84 @@
 package com.sharkskin.store.action;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import com.sharkskin.store.model.Product;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @Controller
 public class HomeController {
 
+    // Create a static list of 20 mock products
+    private static final List<Product> allProducts = IntStream.rangeClosed(1, 20)
+            .mapToObj(i -> new Product(
+                    String.format("p%03d", i),
+                    "鯊魚商品 " + i,
+                    (i * 150), // Prices from 150 to 3000
+                    "https://via.placeholder.com/150/00BFFF/FFFFFF?text=Product+" + i))
+            .collect(Collectors.toList());
+
     @GetMapping("/")
     public String home() {
         return "index";
+    }
+
+    @GetMapping("/list")
+    public String li(@RequestParam String param) {
+        return "index2";
+    }
+
+    @GetMapping("/products")
+    public String showProductList(Model model,
+                                  @RequestParam(name = "page", defaultValue = "0") int page,
+                                  @RequestParam(name = "size", defaultValue = "10") int size,
+                                  @RequestParam(name = "name", required = false) String name,
+                                  @RequestParam(name = "minPrice", required = false) Integer minPrice,
+                                  @RequestParam(name = "maxPrice", required = false) Integer maxPrice) {
+
+        // Start with a stream of all products
+        Stream<Product> productStream = allProducts.stream();
+
+        // Filter by name if provided
+        if (name != null && !name.trim().isEmpty()) {
+            productStream = productStream.filter(p -> p.getName().toLowerCase().contains(name.toLowerCase()));
+        }
+
+        // Filter by min price if provided
+        if (minPrice != null && minPrice > 0) {
+            productStream = productStream.filter(p -> p.getPrice() >= minPrice);
+        }
+
+        // Filter by max price if provided
+        if (maxPrice != null && maxPrice > 0) {
+            productStream = productStream.filter(p -> p.getPrice() <= maxPrice);
+        }
+
+        List<Product> filteredProducts = productStream.collect(Collectors.toList());
+
+        // Paginate the filtered list
+        Pageable pageable = PageRequest.of(page, size);
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), filteredProducts.size());
+
+        List<Product> pageContent = filteredProducts.subList(start, end);
+        Page<Product> productPage = new PageImpl<>(pageContent, pageable, filteredProducts.size());
+
+        // Add page and search params to model
+        model.addAttribute("productPage", productPage);
+        model.addAttribute("name", name);
+        model.addAttribute("minPrice", minPrice);
+        model.addAttribute("maxPrice", maxPrice);
+
+        return "productList";
     }
 }

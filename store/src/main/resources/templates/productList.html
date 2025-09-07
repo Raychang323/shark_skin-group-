@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>商品列表</title>
+    <style>
+        body { font-family: sans-serif; }
+        .search-container { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9; display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+        .search-container > div { display: flex; flex-direction: column; }
+        .search-container label { margin-bottom: 5px; font-weight: bold; }
+        .search-container input[type="text"] { padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
+        .search-container button { padding: 8px 15px; border: none; background-color: #007bff; color: white; border-radius: 4px; cursor: pointer; align-self: flex-end; }
+        
+        /* Price Range Slider Styles */
+        .price-slider-container { width: 300px; margin-top: 10px; }
+        .price-values { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .slider-wrapper { position: relative; height: 20px; }
+        .slider-track, .slider-filler { position: absolute; height: 5px; width: 100%; top: 50%; transform: translateY(-50%); border-radius: 5px; }
+        .slider-track { background-color: #ddd; }
+        .slider-filler { background-color: #007bff; z-index: 1; }
+
+        .slider-wrapper input[type="range"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 100%;
+            outline: none;
+            position: absolute;
+            margin: 0;
+            padding: 0;
+            height: 5px;
+            background: none;
+            pointer-events: none;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 2;
+        }
+        .slider-wrapper input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background-color: #007bff;
+            border-radius: 50%;
+            cursor: pointer;
+            pointer-events: auto;
+        }
+        .slider-wrapper input[type="range"]::-moz-range-thumb {
+            -moz-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background-color: #007bff;
+            border-radius: 50%;
+            cursor: pointer;
+            pointer-events: auto;
+        }
+
+        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+        th, td { border: 1px solid #dddddd; text-align: left; padding: 8px; }
+        th { background-color: #f2f2f2; }
+        img { max-width: 100px; max-height: 100px; }
+        .pagination { display: flex; align-items: center; justify-content: center; }
+        .pagination a, .pagination span { margin: 0 5px; padding: 5px 10px; border: 1px solid #ccc; text-decoration: none; color: #333; }
+        .pagination a.disabled { pointer-events: none; color: #ccc; background-color: #f5f5f5; }
+        .pagination .current { font-weight: bold; color: #000; border: none; }
+    </style>
+</head>
+<body>
+    <h1>商品列表</h1>
+
+    <!-- Search Form -->
+    <div class="search-container">
+        <form th:action="@{/products}" method="get" style="display: flex; gap: 20px; align-items: flex-end; width: 100%;">
+            <div>
+                <label for="name">商品名稱:</label>
+                <input type="text" id="name" name="name" th:value="${name}" placeholder="輸入關鍵字...">
+            </div>
+            
+            <div class="price-slider-container">
+                <label>價格區間:</label>
+                <div class="price-values">
+                    <span id="min-val" th:text="${minPrice != null ? minPrice : 0}">0</span>
+                    <span id="max-val" th:text="${maxPrice != null ? maxPrice : 3000}">3000</span>
+                </div>
+                <div class="slider-wrapper">
+                    <div class="slider-track"></div>
+                    <div class="slider-filler"></div>
+                    <input type="range" name="minPrice" id="slider-1" min="0" max="3000" th:value="${minPrice != null ? minPrice : 0}">
+                    <input type="range" name="maxPrice" id="slider-2" min="0" max="3000" th:value="${maxPrice != null ? maxPrice : 3000}">
+                </div>
+            </div>
+
+            <button type="submit">搜尋</button>
+        </form>
+    </div>
+
+    <table>
+        <!-- Table headers -->
+        <thead>
+            <tr>
+                <th>商品圖片</th>
+                <th>商品ID</th>
+                <th>商品名稱</th>
+                <th>商品價格</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="product : ${productPage.content}">
+                <td><img th:src="${product.pic_url}" alt="商品圖片"></td>
+                <td th:text="${product.p_id}">p_id</td>
+                <td th:text="${product.name}">name</td>
+                <td th:text="${product.price}">price</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Pagination Controls -->
+    <div class="pagination" th:if="${productPage.totalPages > 0}">
+        <a th:href="@{/products(page=0, size=${productPage.size}, name=${name}, minPrice=${minPrice}, maxPrice=${maxPrice})}"
+           th:classappend="${productPage.first} ? 'disabled'">第一頁</a>
+        <a th:href="@{/products(page=${productPage.number - 1}, size=${productPage.size}, name=${name}, minPrice=${minPrice}, maxPrice=${maxPrice})}"
+           th:classappend="${productPage.first} ? 'disabled'">上一頁</a>
+        
+        <span class="current" th:text="'第 ' + (${productPage.number} + 1) + ' 頁 / 共 ' + ${productPage.totalPages} + ' 頁'"></span>
+        
+        <a th:href="@{/products(page=${productPage.number + 1}, size=${productPage.size}, name=${name}, minPrice=${minPrice}, maxPrice=${maxPrice})}"
+           th:classappend="${productPage.last} ? 'disabled'">下一頁</a>
+        <a th:href="@{/products(page=${productPage.totalPages - 1}, size=${productPage.size}, name=${name}, minPrice=${minPrice}, maxPrice=${maxPrice})}"
+           th:classappend="${productPage.last} ? 'disabled'">最終頁</a>
+    </div>
+
+<script>
+window.onload = function(){
+    const sliderOne = document.getElementById("slider-1");
+    const sliderTwo = document.getElementById("slider-2");
+    const displayValOne = document.getElementById("min-val");
+    const displayValTwo = document.getElementById("max-val");
+    const sliderFiller = document.querySelector(".slider-filler");
+    const sliderMaxValue = sliderOne.max;
+
+    function slideOne(){
+        // Prevent sliders from crossing
+        if(parseInt(sliderTwo.value) - parseInt(sliderOne.value) < 10) { // Ensure a minimum gap
+            sliderOne.value = parseInt(sliderTwo.value) - 10;
+        }
+        displayValOne.textContent = sliderOne.value;
+        updateVisuals();
+    }
+
+    function slideTwo(){
+        // Prevent sliders from crossing
+        if(parseInt(sliderTwo.value) - parseInt(sliderOne.value) < 10) { // Ensure a minimum gap
+            sliderTwo.value = parseInt(sliderOne.value) + 10;
+        }
+        displayValTwo.textContent = sliderTwo.value;
+        updateVisuals();
+    }
+
+    function updateVisuals(){
+        let percent1 = (sliderOne.value / sliderMaxValue) * 100;
+        let percent2 = (sliderTwo.value / sliderMaxValue) * 100;
+        sliderFiller.style.left = `${percent1}%`;
+        sliderFiller.style.width = `${percent2 - percent1}%`;
+    }
+
+    sliderOne.oninput = slideOne;
+    sliderTwo.oninput = slideTwo;
+
+    // Initial visual update
+    updateVisuals();
+};
+</script>
+
+</body>
+</html>
