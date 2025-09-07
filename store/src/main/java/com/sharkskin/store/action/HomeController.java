@@ -1,5 +1,6 @@
 package com.sharkskin.store.action;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -19,17 +20,19 @@ import com.sharkskin.store.model.Product;
 @Controller
 public class HomeController {
 
-    // Create a static list of 20 mock products
-    private static final List<Product> allProducts = IntStream.rangeClosed(1, 20)
+    // Create a static list of 40 mock products for more variety
+    private static final List<Product> allProducts = IntStream.rangeClosed(1, 40)
             .mapToObj(i -> new Product(
                     String.format("p%03d", i),
                     "鯊魚商品 " + i,
-                    (i * 150), // Prices from 150 to 3000
-                    "https://via.placeholder.com/150/00BFFF/FFFFFF?text=Product+" + i))
+                    (i * 150), // Prices from 150 to 6000
+                    "https://via.placeholder.com/200/00BFFF/FFFFFF?text=Product+" + i))
             .collect(Collectors.toList());
 
     @GetMapping("/")
-    public String home() {
+    public String home(Model model) {
+        Collections.shuffle(allProducts); // Shuffle products for a random order on each load
+        model.addAttribute("products", allProducts);
         return "index";
     }
 
