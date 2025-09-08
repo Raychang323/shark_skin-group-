@@ -1,9 +1,218 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>我的主頁</title>
+    <style>
+        body { font-family: sans-serif; }
+        h1, h2 { text-align: center; }
+        .product-carousel-container {
+            width: 50%;
+            max-width: 400px;
+            margin: 0 auto;
+            position: relative; /* Needed for positioning arrows */
+            border-radius: 8px;
+        }
+        .carousel-inner-container {
+            overflow: hidden;
+            border-radius: 8px; /* Rounded corners for the content */
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+        .product-carousel {
+            display: flex;
+        }
+        .product-item {
+            width: 100%;
+            flex-shrink: 0;
+            box-sizing: border-box;
+            padding: 20px;
+            text-align: center;
+        }
+        .product-item img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+        .product-item .name {
+            font-weight: bold;
+            margin-top: 8px;
+            font-size: 16px;
+        }
+        .product-item .price {
+            color: #e91e63;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* Arrow Styles */
+        .carousel-arrow {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 20%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .product-carousel-container:hover .carousel-arrow {
+            opacity: 1;
+        }
+        .arrow-left {
+            left: 0;
+            border-radius: 8px 0 0 8px;
+            background: linear-gradient(to right, rgba(0,0,0,0.2), transparent);
+        }
+        .arrow-right {
+            right: 0;
+            border-radius: 0 8px 8px 0;
+            background: linear-gradient(to left, rgba(0,0,0,0.2), transparent);
+        }
+        .carousel-arrow::after {
+            content: '';
+            display: block;
+            width: 12px;
+            height: 12px;
+            border-style: solid;
+            border-width: 3px 3px 0 0;
+            border-color: rgba(255, 255, 255, 0.7);
+        }
+        .arrow-left::after {
+            transform: translateX(2px) rotate(-135deg);
+        }
+        .arrow-right::after {
+            transform: translateX(-2px) rotate(45deg);
+        }
+
+        /* View All Button Styles */
+        .view-all-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .view-all-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .view-all-button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+    </style>
 </head>
 <body>
-    <h1>首頁測試</h1>
+    <h1>鯊魚快閃商店</h1>
+    <h2>精選浪潮，限時呈現</h2>
+
+    <div class="product-carousel-container" id="carousel-container">
+        <div class="carousel-arrow arrow-left" id="arrow-left"></div>
+        <div class="carousel-arrow arrow-right" id="arrow-right"></div>
+        <div class="carousel-inner-container">
+            <div class="product-carousel" id="product-carousel">
+                <!-- Products are loaded here by Thymeleaf -->
+                <div th:each="product : ${products}" class="product-item">
+                    <img th:src="${product.pic_url}" alt="Product Image">
+                    <div class="name" th:text="${product.name}">商品名稱</div>
+                    <div class="price" th:text="'$' + ${product.price}">$100</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="view-all-container">
+        <a href="/products" class="view-all-button">查看所有商品 &rarr;</a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const carousel = document.getElementById('product-carousel');
+            const arrowLeft = document.getElementById('arrow-left');
+            const arrowRight = document.getElementById('arrow-right');
+            const items = carousel.querySelectorAll('.product-item');
+
+            if (items.length <= 1) return; // Don't initialize if not enough items
+
+            const totalItems = items.length;
+            let currentIndex = 0;
+            let autoSlideInterval;
+
+            // --- Setup for Seamless Loop ---
+            const firstClone = items[0].cloneNode(true);
+            const lastClone = items[totalItems - 1].cloneNode(true);
+            carousel.appendChild(firstClone);
+            carousel.insertBefore(lastClone, items[0]);
+
+            // --- Functions ---
+            function updateSlide(instant = false) {
+                if (instant) {
+                    carousel.style.transition = 'none';
+                } else {
+                    carousel.style.transition = 'transform 0.5s ease-in-out';
+                }
+                const offset = -(currentIndex + 1) * items[0].offsetWidth;
+                carousel.style.transform = `translateX(${offset}px)`;
+            }
+
+            function slideNext() {
+                if (currentIndex >= totalItems) return; // Prevent fast clicking issues
+                currentIndex++;
+                updateSlide();
+
+                carousel.addEventListener('transitionend', () => {
+                    if (currentIndex >= totalItems) {
+                        currentIndex = 0;
+                        updateSlide(true);
+                    }
+                }, { once: true });
+            }
+
+            function slidePrev() {
+                if (currentIndex < 0) return; // Prevent fast clicking issues
+                currentIndex--;
+                updateSlide();
+                
+                carousel.addEventListener('transitionend', () => {
+                    if (currentIndex < 0) {
+                        currentIndex = totalItems - 1;
+                        updateSlide(true);
+                    }
+                }, { once: true });
+            }
+            
+            function startAutoSlide() {
+                stopAutoSlide();
+                autoSlideInterval = setInterval(slideNext, 5000); // Slide every 5 seconds
+            }
+
+            function stopAutoSlide() {
+                clearInterval(autoSlideInterval);
+            }
+
+            // --- Initial State ---
+            updateSlide(true); // Set initial position without animation
+
+            // --- Event Listeners ---
+            arrowRight.addEventListener('click', () => {
+                slideNext();
+                startAutoSlide(); // Reset interval
+            });
+
+            arrowLeft.addEventListener('click', () => {
+                slidePrev();
+                startAutoSlide(); // Reset interval
+            });
+
+            // Start the show
+            startAutoSlide();
+        });
+    </script>
 </body>
 </html>
