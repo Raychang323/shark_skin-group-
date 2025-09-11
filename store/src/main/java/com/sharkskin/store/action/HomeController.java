@@ -1,11 +1,8 @@
 package com.sharkskin.store.action;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
+import com.sharkskin.store.model.Product;
+import com.sharkskin.store.repositories.ProductRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -15,22 +12,20 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.sharkskin.store.model.Product;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Controller
 public class HomeController {
 
-    // Create a static list of 40 mock products for more variety
-    private static final List<Product> allProducts = IntStream.rangeClosed(1, 40)
-            .mapToObj(i -> new Product(
-                    String.format("p%03d", i),
-                    "鯊魚商品 " + i,
-                    (i * 150), // Prices from 150 to 6000
-                    "https://via.placeholder.com/200/00BFFF/FFFFFF?text=Product+" + i))
-            .collect(Collectors.toList());
+    @Autowired
+    private ProductRepository productRepository;
 
     @GetMapping("/")
     public String home(Model model) {
+        List<Product> allProducts = productRepository.findAll();
         Collections.shuffle(allProducts); // Shuffle products for a random order on each load
         model.addAttribute("products", allProducts);
         return "index";
@@ -45,7 +40,7 @@ public class HomeController {
                                   @RequestParam(name = "maxPrice", required = false) Integer maxPrice,
                                   @RequestParam(name = "sort", defaultValue = "name_asc") String sort) {
 
-        // Start with a stream of all products
+        List<Product> allProducts = productRepository.findAll();
         Stream<Product> productStream = allProducts.stream();
 
         // Filter by name if provided

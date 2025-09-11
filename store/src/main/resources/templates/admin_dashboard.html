@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>管理員儀表板 - 頁面選擇</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f8f9fa; }
+        .dashboard-container { background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; max-width: 600px; text-align: center; }
+        .dashboard-container h2 { margin-bottom: 30px; color: #343a40; }
+        .dashboard-container .btn { margin: 10px; padding: 15px 30px; font-size: 1.2rem; }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+    <h2>管理員儀表板 - 頁面選擇</h2>
+    <div th:if="${session.adminUsername}">
+        <p>歡迎，<strong th:text="${session.adminUsername}"></strong> 管理員！</p>
+    </div>
+    <a href="/admin/add-product" class="btn btn-primary">上架商品</a>
+    <a href="/admin/user-management" class="btn btn-info">會員管理</a>
+    <a href="/admin/logout" class="btn btn-danger">登出</a>
+</div>
+</body>
+</html>

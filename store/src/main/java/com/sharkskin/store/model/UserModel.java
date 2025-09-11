@@ -10,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient; // Import Transient
 
 @Entity //標記JPA實體類別
 @Table(name = "`user`") //標記資料庫table name
@@ -29,6 +30,10 @@ public class UserModel {
 	@CreationTimestamp
     @Column(name = "create_time", nullable = false, updatable = false)
     private Instant createdtime; //註冊時間 自動紀錄
+
+    @Transient // This field will not be persisted to the database
+    private boolean hasOrders;
+
 	public Long getId() {
 		return id;
 	}
@@ -65,7 +70,12 @@ public class UserModel {
 	public void setCreatedtime(Instant createdtime) {
 		this.createdtime = createdtime;
 	}
-	
-	
-	
+
+    public boolean getHasOrders() { // Use getHasOrders for boolean getters
+        return hasOrders;
+    }
+
+    public void setHasOrders(boolean hasOrders) {
+        this.hasOrders = hasOrders;
+    }
 }

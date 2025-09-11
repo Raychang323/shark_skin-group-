@@ -126,7 +126,7 @@
             <tr th:each="product : ${productPage.content}">
                 <td>
                     <a th:href="@{/product/detail/{productId}(productId=${product.p_id})}">
-                        <img th:src="${product.pic_url}" alt="商品圖片">
+                        <img th:src="${product.images[0].imageUrl}" alt="Product Image">
                     </a>
                 </td>
                 <td th:text="${product.p_id}">p_id</td>

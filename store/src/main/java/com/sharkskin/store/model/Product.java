@@ -1,7 +1,8 @@
 package com.sharkskin.store.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Product {
@@ -9,16 +10,19 @@ public class Product {
     private String p_id;
     private String name;
     private int price;
-    private String pic_url;
+    private int stock; // Added stock field
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductImage> images = new ArrayList<>();
 
     // JPA requires a no-arg constructor
     public Product() {}
 
-    public Product(String p_id, String name, int price, String pic_url) {
+    public Product(String p_id, String name, int price, int stock) {
         this.p_id = p_id;
         this.name = name;
         this.price = price;
-        this.pic_url = pic_url;
+        this.stock = stock;
     }
 
     // Getters and Setters
@@ -46,11 +50,30 @@ public class Product {
         this.price = price;
     }
 
-    public String getPic_url() {
-        return pic_url;
+    public int getStock() {
+        return stock;
     }
 
-    public void setPic_url(String pic_url) {
-        this.pic_url = pic_url;
+    public void setStock(int stock) {
+        this.stock = stock;
+    }
+
+    public List<ProductImage> getImages() {
+        return images;
+    }
+
+    public void setImages(List<ProductImage> images) {
+        this.images = images;
+    }
+
+    // Helper methods for bidirectional relationship
+    public void addImage(ProductImage image) {
+        images.add(image);
+        image.setProduct(this);
+    }
+
+    public void removeImage(ProductImage image) {
+        images.remove(image);
+        image.setProduct(null);
     }
 }
