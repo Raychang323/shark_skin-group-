@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>商品詳細資料</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+
+<h1>商品詳細資料</h1>
+
+<div th:if="${product}">
+    <img th:src="${product.pic_url}" alt="商品圖片" width="300">
+    <h2 th:text="${product.p_name}">商品名稱</h2>
+    <p>價格: <span th:text="${product.price}"></span></p>
+    <p>庫存: <span th:text="${product.on_stock}"></span></p>
+
+    <button th:if="${product.on_stock > 0}">新增至購物車</button>
+    <button th:if="${product.on_stock == 0}" disabled style="background-color: grey; color: white;">庫存不足</button>
+</div>
+
+<div th:if="${product == null}">
+    <p>找不到商品</p>
+</div>
+
+</body>
+</html>

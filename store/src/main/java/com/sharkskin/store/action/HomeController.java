@@ -36,11 +36,6 @@ public class HomeController {
         return "index";
     }
 
-    @GetMapping("/list")
-    public String li(@RequestParam String param) {
-        return "index2";
-    }
-
     @GetMapping("/products")
     public String showProductList(Model model,
                                   @RequestParam(name = "page", defaultValue = "0") int page,
