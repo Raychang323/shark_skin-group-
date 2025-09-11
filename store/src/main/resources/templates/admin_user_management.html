@@ -23,10 +23,6 @@
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>ID
-                    <a th:href="@{/admin/user-management(sort='id_asc')}" th:classappend="${sort == 'id_asc' ? 'text-primary' : ''}">▲</a>
-                    <a th:href="@{/admin/user-management(sort='id_desc')}" th:classappend="${sort == 'id_desc' ? 'text-primary' : ''}">▼</a>
-                </th>
                 <th>帳號
                     <a th:href="@{/admin/user-management(sort='name_asc')}" th:classappend="${sort == 'name_asc' ? 'text-primary' : ''}">▲</a>
                     <a th:href="@{/admin/user-management(sort='name_desc')}" th:classappend="${sort == 'name_desc' ? 'text-primary' : ''}">▼</a>
@@ -43,7 +39,6 @@
         </thead>
         <tbody>
             <tr th:each="user : ${users}">
-                <td th:text="${user.id}"></td>
                 <td th:text="${user.username}"></td>
                 <td th:text="${user.email}"></td>
                 <td th:text="${user.role}"></td>

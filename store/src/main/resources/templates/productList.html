@@ -105,7 +105,6 @@
         <thead>
             <tr>
                 <th>商品圖片</th>
-                <th>商品ID</th>
                 <th>
                     <a th:href="@{/products(size=${productPage.size}, name=${name}, minPrice=${minPrice}, maxPrice=${maxPrice}, sort=${sort == 'name_asc' ? 'name_desc' : 'name_asc'})}">
                         商品名稱
@@ -120,6 +119,7 @@
                         <span th:if="${sort == 'price_desc'}">▼</span>
                     </a>
                 </th>
+                <th>庫存數量</th>
             </tr>
         </thead>
         <tbody>
@@ -129,11 +129,11 @@
                         <img th:src="${product.images[0].imageUrl}" alt="Product Image">
                     </a>
                 </td>
-                <td th:text="${product.p_id}">p_id</td>
                 <td>
                     <a th:href="@{/product/detail/{productId}(productId=${product.p_id})}" th:text="${product.name}">name</a>
                 </td>
                 <td th:text="${product.price}">price</td>
+                <td th:text="${product.stock}">stock</td>
             </tr>
         </tbody>
     </table>
