@@ -39,8 +39,7 @@ public class UserService {
 			//存進資料庫 明碼存入
 			userRepository.save(user);
 			//發送驗證信
-			EmailSend emailSend=new EmailSend();
-			emailSend.sendEmail(user);
+			sendEmail(user);
 			return true;
 	}
 	//登入
