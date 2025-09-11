@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>我的訂單</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-5">
+    <h2>我的訂單</h2>
+
+    <!-- If orders list is empty -->
+    <div th:if="${orders == null or orders.isEmpty()}" class="text-center mt-5">
+        <h4>您目前沒有任何訂單。</h4>
+        <p class="text-muted">快去逛逛吧！</p>
+        <a href="/products" class="btn btn-primary mt-3">去購物</a>
+    </div>
+
+    <!-- If orders list is not empty -->
+    <div th:if="${orders != null and !orders.isEmpty()}">
+        <div th:each="order : ${orders}" class="card mb-4">
+            <div class="card-header d-flex justify-content-between">
+                <span>訂單編號: <strong th:text="${order.orderNumber}"></strong></span>
+                <span>狀態: <strong th:text="${order.status}"></strong></span>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li th:each="item : ${order.items}" class="list-group-item d-flex justify-content-between align-items-center">
+                        <span th:text="${item.product.name}">商品名稱</span>
+                        <span>
+                            數量: <span th:text="${item.quantity}"></span>
+                        </span>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-footer text-right">
+                <strong>總金額: <span th:text="${order.totalPrice}"></span></strong>
+            </div>
+        </div>
+    </div>
+
+    <a href="/home" class="btn btn-secondary mt-3">回到會員首頁</a>
+</div>
+</body>
+</html>

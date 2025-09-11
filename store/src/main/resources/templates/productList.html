@@ -69,6 +69,11 @@
 <body>
     <h1>商品列表</h1>
 
+    <div style="margin-bottom: 20px;">
+        <a href="/login" style="display: inline-block; padding: 10px 15px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">登入</a>
+        <a href="/" style="display: inline-block; padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">回到首頁</a>
+    </div>
+
     <!-- Search Form -->
     <div class="search-container">
         <form th:action="@{/products}" method="get" style="display: flex; gap: 20px; align-items: flex-end; width: 100%;">
@@ -100,17 +105,35 @@
         <thead>
             <tr>
                 <th>商品圖片</th>
-                <th>商品ID</th>
-                <th>商品名稱</th>
-                <th>商品價格</th>
+                <th>
+                    <a th:href="@{/products(size=${productPage.size}, name=${name}, minPrice=${minPrice}, maxPrice=${maxPrice}, sort=${sort == 'name_asc' ? 'name_desc' : 'name_asc'})}">
+                        商品名稱
+                        <span th:if="${sort == 'name_asc'}">▲</span>
+                        <span th:if="${sort == 'name_desc'}">▼</span>
+                    </a>
+                </th>
+                <th>
+                    <a th:href="@{/products(size=${productPage.size}, name=${name}, minPrice=${minPrice}, maxPrice=${maxPrice}, sort=${sort == 'price_asc' ? 'price_desc' : 'price_asc'})}">
+                        商品價格
+                        <span th:if="${sort == 'price_asc'}">▲</span>
+                        <span th:if="${sort == 'price_desc'}">▼</span>
+                    </a>
+                </th>
+                <th>庫存數量</th>
             </tr>
         </thead>
         <tbody>
             <tr th:each="product : ${productPage.content}">
-                <td><img th:src="${product.pic_url}" alt="商品圖片"></td>
-                <td th:text="${product.p_id}">p_id</td>
-                <td th:text="${product.name}">name</td>
+                <td>
+                    <a th:href="@{/product/detail/{productId}(productId=${product.p_id})}">
+                        <img th:src="@{/api/images/{fileName}(fileName=${product.images[0].imageUrl})}" alt="Product Image">
+                    </a>
+                </td>
+                <td>
+                    <a th:href="@{/product/detail/{productId}(productId=${product.p_id})}" th:text="${product.name}">name</a>
+                </td>
                 <td th:text="${product.price}">price</td>
+                <td th:text="${product.stock}">stock</td>
             </tr>
         </tbody>
     </table>

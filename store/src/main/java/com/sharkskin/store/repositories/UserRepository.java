@@ -11,7 +11,7 @@ import com.sharkskin.store.model.UserModel;
 
 @Repository
 //JpaRepository(T, ID)，Ｔ=資料表的類別(Model)，ID=Primary Key的型別
-public interface UserRepository extends   JpaRepository<UserModel, Long> {
+public interface UserRepository extends   JpaRepository<UserModel, String> {
     // 根據使用者名稱查詢
 	UserModel findByUsername(String username);
     // 根據 Email 查詢

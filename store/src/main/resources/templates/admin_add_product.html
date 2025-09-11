@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>管理員 - 上架商品</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body { background-color: #f8f9fa; padding: 30px; }
+        .container { background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h2 { margin-bottom: 30px; color: #343a40; text-align: center; }
+        .form-group label { font-weight: bold; }
+        .image-upload-section { border: 1px solid #ced4da; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        .image-preview { max-width: 100px; max-height: 100px; margin-right: 10px; margin-bottom: 10px; border: 1px solid #ddd; padding: 5px; }
+        .error-message { color: red; font-weight: bold; margin-top: 10px; }
+        .success-message { color: green; font-weight: bold; margin-top: 10px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>上架新商品</h2>
+
+    <div th:if="${message}" class="alert alert-danger" role="alert">
+        <p th:text="${message}"></p>
+    </div>
+    <div th:if="${successMessage}" class="alert alert-success" role="alert">
+        <p th:text="${successMessage}"></p>
+    </div>
+
+    <form id="addProductForm" th:action="@{/admin/add-product}" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="name">商品名稱</label>
+            <input type="text" class="form-control" id="name" name="name" th:value="${product?.name}" required>
+        </div>
+        <div class="form-group">
+            <label for="price">價格</label>
+            <input type="text" class="form-control" id="price" name="price" th:value="${product?.price}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="stock">庫存</label>
+            <input type="number" class="form-control" id="stock" name="stock" th:value="${product?.on_stock}" required min="0">
+        </div>
+
+        <div class="image-upload-section">
+            <label>商品圖片 (最多10張，每張限制10MB)</label>
+            <input type="file" class="form-control-file" name="imageFiles" multiple onchange="previewImages(this)">
+            <div id="image-preview-container" class="mt-2"></div>
+        </div>
+
+        <button id="submitBtn" type="submit" class="btn btn-primary">上架商品</button>
+    </form>
+
+    <hr>
+    <a href="/portal/a9x3z7/dashboard" class="btn btn-secondary">回到儀表板</a>
+</div>
+
+<script>
+    const MAX_IMAGES = 10;
+
+    function previewImages(input) {
+        const previewContainer = document.getElementById('image-preview-container');
+        previewContainer.innerHTML = ''; // Clear previous previews
+
+        if (input.files && input.files.length > 0) {
+            if (input.files.length > MAX_IMAGES) {
+                alert('最多只能上傳 ' + MAX_IMAGES + ' 張圖片。');
+                // Clear the file input
+                input.value = '';
+                return;
+            }
+
+            for (let i = 0; i < input.files.length; i++) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'image-preview';
+                    previewContainer.appendChild(img);
+                };
+                reader.readAsDataURL(input.files[i]);
+            }
+        }
+    }
+
+    // Prevent multiple form submissions
+    document.getElementById('addProductForm').addEventListener('submit', function() {
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = '上傳中...';
+    });
+</script>
+</body>
+</html>

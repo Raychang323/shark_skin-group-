@@ -119,7 +119,7 @@
             <div class="product-carousel" id="product-carousel">
                 <!-- Products are loaded here by Thymeleaf -->
                 <div th:each="product : ${products}" class="product-item">
-                    <img th:src="${product.pic_url}" alt="Product Image">
+                    <img th:src="${product.images[0].imageUrl}" alt="Product Image">
                     <div class="name" th:text="${product.name}">商品名稱</div>
                     <div class="price" th:text="'$' + ${product.price}">$100</div>
                 </div>
@@ -129,6 +129,7 @@
 
     <div class="view-all-container">
         <a href="/products" class="view-all-button">查看所有商品 &rarr;</a>
+        <a href="/order-lookup" class="view-all-button" style="background-color: #6c757d; margin-left: 10px;">查詢訂單</a>
     </div>
 
     <script>
