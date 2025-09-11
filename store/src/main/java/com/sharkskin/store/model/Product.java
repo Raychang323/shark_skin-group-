@@ -1,10 +1,18 @@
 package com.sharkskin.store.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+
+@Entity
 public class Product {
+    @Id
     private String p_id;
     private String name;
     private int price;
     private String pic_url;
+
+    // JPA requires a no-arg constructor
+    public Product() {}
 
     public Product(String p_id, String name, int price, String pic_url) {
         this.p_id = p_id;

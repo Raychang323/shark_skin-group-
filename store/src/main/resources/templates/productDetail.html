@@ -9,7 +9,7 @@
 <h1>商品詳細資料</h1>
 
 <div th:if="${product}">
-    <img th:src="${product.pic_url}" alt="商品圖片" width="300">
+    <img th:src="${product.pic_urls[0]}" alt="商品圖片" width="300">
     <h2 th:text="${product.p_name}">商品名稱</h2>
     <p>價格: <span th:text="${product.price}"></span></p>
     <p>庫存: <span th:text="${product.on_stock}"></span></p>

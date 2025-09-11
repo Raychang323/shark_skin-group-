@@ -42,7 +42,8 @@ public class HomeController {
                                   @RequestParam(name = "size", defaultValue = "10") int size,
                                   @RequestParam(name = "name", required = false) String name,
                                   @RequestParam(name = "minPrice", required = false) Integer minPrice,
-                                  @RequestParam(name = "maxPrice", required = false) Integer maxPrice) {
+                                  @RequestParam(name = "maxPrice", required = false) Integer maxPrice,
+                                  @RequestParam(name = "sort", defaultValue = "name_asc") String sort) {
 
         // Start with a stream of all products
         Stream<Product> productStream = allProducts.stream();
@@ -64,7 +65,26 @@ public class HomeController {
 
         List<Product> filteredProducts = productStream.collect(Collectors.toList());
 
-        // Paginate the filtered list
+        // Sort the filtered list
+        if (sort != null) {
+            switch (sort) {
+                case "price_asc":
+                    filteredProducts.sort(java.util.Comparator.comparingInt(Product::getPrice));
+                    break;
+                case "price_desc":
+                    filteredProducts.sort(java.util.Comparator.comparingInt(Product::getPrice).reversed());
+                    break;
+                case "name_desc":
+                    filteredProducts.sort(java.util.Comparator.comparing(Product::getName).reversed());
+                    break;
+                case "name_asc":
+                default:
+                    filteredProducts.sort(java.util.Comparator.comparing(Product::getName));
+                    break;
+            }
+        }
+
+        // Paginate the sorted list
         Pageable pageable = PageRequest.of(page, size);
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), filteredProducts.size());
@@ -77,6 +97,7 @@ public class HomeController {
         model.addAttribute("name", name);
         model.addAttribute("minPrice", minPrice);
         model.addAttribute("maxPrice", maxPrice);
+        model.addAttribute("sort", sort);
 
         return "productList";
     }

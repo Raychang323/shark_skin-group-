@@ -12,7 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity //標記JPA實體類別
-@Table(name = "user") //標記資料庫table name
+@Table(name = "`user`") //標記資料庫table name
 public class UserModel {
 
 	@Id
