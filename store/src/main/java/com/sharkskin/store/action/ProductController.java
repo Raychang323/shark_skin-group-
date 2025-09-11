@@ -19,10 +19,10 @@ public class ProductController {
     @GetMapping("/product/detail/{productId}")
     public String getProductDetail(@PathVariable String productId, Model model) {
         Optional<Product> productOptional = productRepository.findById(productId);
-        if (productOptional.isPresent()) {
+        if (productOptional.isPresent() && productOptional.get().isListed()) {
             model.addAttribute("product", productOptional.get());
         } else {
-            model.addAttribute("product", null); // Product not found
+            model.addAttribute("product", null); // Product not found or not listed
         }
         return "productDetail";
     }

@@ -26,7 +26,7 @@
         <p th:text="${successMessage}"></p>
     </div>
 
-    <form th:action="@{/admin/add-product}" method="post" enctype="multipart/form-data">
+    <form id="addProductForm" th:action="@{/admin/add-product}" method="post" enctype="multipart/form-data">
         <div class="form-group">
             <label for="name">商品名稱</label>
             <input type="text" class="form-control" id="name" name="name" th:value="${product?.name}" required>
@@ -43,14 +43,11 @@
 
         <div class="image-upload-section">
             <label>商品圖片 (最多10張，每張限制10MB)</label>
-            <div id="image-inputs">
-                <input type="url" class="form-control mb-2" name="imageUrls" placeholder="圖片URL 1" onchange="previewImage(this, 'preview1')">
-                <img id="preview1" class="image-preview" style="display: none;">
-            </div>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="addImageInput()">新增圖片欄位</button>
+            <input type="file" class="form-control-file" name="imageFiles" multiple onchange="previewImages(this)">
+            <div id="image-preview-container" class="mt-2"></div>
         </div>
 
-        <button type="submit" class="btn btn-primary">上架商品</button>
+        <button id="submitBtn" type="submit" class="btn btn-primary">上架商品</button>
     </form>
 
     <hr>
@@ -58,47 +55,39 @@
 </div>
 
 <script>
-    let imageInputCount = 1;
     const MAX_IMAGES = 10;
-    const MAX_FILE_SIZE_MB = 10; // Frontend limit
 
-    function addImageInput() {
-        if (imageInputCount >= MAX_IMAGES) {
-            alert('最多只能上傳 ' + MAX_IMAGES + ' 張圖片。');
-            return;
-        }
-        imageInputCount++;
-        const imageInputsDiv = document.getElementById('image-inputs');
-        const newInput = document.createElement('input');
-        newInput.type = 'url';
-        newInput.className = 'form-control mb-2';
-        newInput.name = 'imageUrls';
-        newInput.placeholder = '圖片URL ' + imageInputCount;
-        newInput.onchange = function() { previewImage(this, 'preview' + imageInputCount); };
-        imageInputsDiv.appendChild(newInput);
+    function previewImages(input) {
+        const previewContainer = document.getElementById('image-preview-container');
+        previewContainer.innerHTML = ''; // Clear previous previews
 
-        const newPreview = document.createElement('img');
-        newPreview.id = 'preview' + imageInputCount;
-        newPreview.className = 'image-preview';
-        newPreview.style.display = 'none';
-        imageInputsDiv.appendChild(newPreview);
-    }
+        if (input.files && input.files.length > 0) {
+            if (input.files.length > MAX_IMAGES) {
+                alert('最多只能上傳 ' + MAX_IMAGES + ' 張圖片。');
+                // Clear the file input
+                input.value = '';
+                return;
+            }
 
-    function previewImage(input, previewId) {
-        const preview = document.getElementById(previewId);
-        if (input.value) {
-            preview.src = input.value;
-            preview.style.display = 'block';
-        } else {
-            preview.src = '';
-            preview.style.display = 'none';
+            for (let i = 0; i < input.files.length; i++) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'image-preview';
+                    previewContainer.appendChild(img);
+                };
+                reader.readAsDataURL(input.files[i]);
+            }
         }
     }
 
-    // Note: File size check for URL is not possible directly via JS. 
-    // This frontend limit is more conceptual for URL inputs. 
-    // Actual file upload would require <input type="file"> and FileReader.
-    // Backend validation is crucial for actual file size.
+    // Prevent multiple form submissions
+    document.getElementById('addProductForm').addEventListener('submit', function() {
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = '上傳中...';
+    });
 </script>
 </body>
 </html>

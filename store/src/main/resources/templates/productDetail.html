@@ -9,7 +9,7 @@
 <h1>商品詳細資料</h1>
 
 <div th:if="${product}">
-    <img th:if="${product.images != null and !product.images.empty}" th:src="${product.images[0].imageUrl}" alt="商品圖片" width="300">
+    <img th:if="${product.images != null and !product.images.empty}" th:src="@{/api/images/{fileName}(fileName=${product.images[0].imageUrl})}" alt="商品圖片" width="300">
     <img th:if="${product.images == null or product.images.empty}" src="https://via.placeholder.com/300x300?text=No+Image" alt="無圖片" width="300">
     <h2 th:text="${product.name}">商品名稱</h2>
     <p>價格: <span th:text="${product.price}"></span></p>

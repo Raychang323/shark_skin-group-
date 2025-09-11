@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "gcp.storage.service-account-key-path",
+    "type": "java.lang.String",
+    "description": "A description for 'gcp.storage.service-account-key-path'"
+  },
+  {
+    "name": "gcp.storage.bucket-name",
+    "type": "java.lang.String",
+    "description": "A description for 'gcp.storage.bucket-name'"
+  }
+]}

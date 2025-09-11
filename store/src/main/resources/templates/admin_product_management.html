@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>管理員 - 商品管理</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body { background-color: #f8f9fa; padding: 30px; }
+        .container { background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h2 { margin-bottom: 30px; color: #343a40; text-align: center; }
+        .table th, .table td { vertical-align: middle; }
+        .btn-sm { margin-left: 5px; }
+        .product-image { max-width: 100px; max-height: 100px; }
+        .unlisted-product { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>商品管理</h2>
+
+    <div th:if="${message}" class="alert alert-info" role="alert">
+        <p th:text="${message}"></p>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>圖片</th>
+                <th>商品名稱</th>
+                <th>價格</th>
+                <th>庫存</th>
+                <th>狀態</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="product : ${products}" th:class="${!product.isListed()} ? 'unlisted-product' : ''">
+                <td>
+                    <img th:if="${product.images != null and not #lists.isEmpty(product.images)}" th:src="@{/api/images/{fileName}(fileName=${product.images[0].imageUrl})}" alt="Product Image" class="product-image">
+                </td>
+                <td th:text="${product.name}"></td>
+                <td th:text="${product.price}"></td>
+                <td>
+                    <form th:action="@{/admin/product/update-stock}" method="post" style="display:inline;">
+                        <input type="hidden" name="productId" th:value="${product.p_id}">
+                        <input type="number" name="stock" th:value="${product.stock}" class="form-control" style="width: 80px; display: inline-block;">
+                        <button type="submit" class="btn btn-primary btn-sm">更新</button>
+                    </form>
+                </td>
+                <td th:text="${product.isListed()} ? '已上架' : '已下架'"></td>
+                <td>
+                    <form th:action="@{/admin/product/toggle-listed}" method="post" style="display:inline;">
+                        <input type="hidden" name="productId" th:value="${product.p_id}">
+                        <button type="submit" 
+                                th:class="${product.isListed()} ? 'btn btn-danger btn-sm' : 'btn btn-success btn-sm'"
+                                th:text="${product.isListed()} ? '下架' : '上架'"
+                                th:onclick="'return confirm(\'確定要' + (${product.isListed()} ? '下架' : '上架') + '此商品嗎？\');'"></button>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+    <a href="/portal/a9x3z7/dashboard" class="btn btn-secondary">回到儀表板</a>
+</div>
+</body>
+</html>

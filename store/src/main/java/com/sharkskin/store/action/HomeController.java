@@ -25,7 +25,7 @@ public class HomeController {
 
     @GetMapping("/")
     public String home(Model model) {
-        List<Product> allProducts = productRepository.findAll();
+        List<Product> allProducts = productRepository.findAllByListedTrueDistinct();
         Collections.shuffle(allProducts); // Shuffle products for a random order on each load
         model.addAttribute("products", allProducts);
         return "index";
@@ -40,7 +40,7 @@ public class HomeController {
                                   @RequestParam(name = "maxPrice", required = false) Integer maxPrice,
                                   @RequestParam(name = "sort", defaultValue = "name_asc") String sort) {
 
-        List<Product> allProducts = productRepository.findAll();
+        List<Product> allProducts = productRepository.findAllByListedTrueDistinct();
         Stream<Product> productStream = allProducts.stream();
 
         // Filter by name if provided

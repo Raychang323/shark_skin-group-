@@ -7,6 +7,7 @@ import com.sharkskin.store.repositories.OrderRepository;
 import com.sharkskin.store.repositories.ProductRepository;
 import com.sharkskin.store.repositories.UserRepository;
 import com.sharkskin.store.service.UserService;
+import com.sharkskin.store.service.GcsImageUploadService; // Import GCS service
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -14,7 +15,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile; // Import MultipartFile
 
+import java.io.IOException; // Import IOException
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -25,17 +28,20 @@ import java.util.stream.Collectors;
 @Controller
 public class AdminController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+    private final ProductRepository productRepository;
+    private final UserRepository userRepository;
+    private final OrderRepository orderRepository;
+    private final GcsImageUploadService gcsImageUploadService; // Inject GCS service
 
     @Autowired
-    private ProductRepository productRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private OrderRepository orderRepository;
+    public AdminController(UserService userService, ProductRepository productRepository, UserRepository userRepository, OrderRepository orderRepository, GcsImageUploadService gcsImageUploadService) {
+        this.userService = userService;
+        this.productRepository = productRepository;
+        this.userRepository = userRepository;
+        this.orderRepository = orderRepository;
+        this.gcsImageUploadService = gcsImageUploadService;
+    }
 
     // Admin Login
     @GetMapping("/admin/login")
@@ -87,7 +93,7 @@ public class AdminController {
     public String addProduct(@RequestParam String name,
                              @RequestParam String price,
                              @RequestParam String stock,
-                             @RequestParam(value = "imageUrls", required = false) List<String> imageUrls,
+                             @RequestParam(value = "imageFiles", required = false) List<MultipartFile> imageFiles, // Change to MultipartFile
                              HttpSession session,
                              Model model) {
         if (session.getAttribute("adminUsername") == null) {
@@ -95,6 +101,7 @@ public class AdminController {
         }
 
         List<String> errors = new ArrayList<>();
+        List<String> imageUrls = new ArrayList<>(); // To store uploaded image URLs
 
         // --- Validation ---
         // Removed productId validation
@@ -118,13 +125,23 @@ public class AdminController {
             errors.add("庫存(格式不正確)");
         }
 
-        // Filter out empty image URLs and check if at least one is provided
-        List<String> validImageUrls = imageUrls != null ? imageUrls.stream()
-                .filter(url -> url != null && !url.trim().isEmpty())
-                .collect(Collectors.toList()) : new ArrayList<>();
+        // Handle image uploads
+        if (imageFiles != null && !imageFiles.isEmpty()) {
+            for (MultipartFile file : imageFiles) {
+                if (!file.isEmpty()) {
+                    try {
+                        String imageUrl = gcsImageUploadService.uploadFile(file);
+                        imageUrls.add(imageUrl);
+                    } catch (IOException e) {
+                        errors.add("圖片上傳失敗: " + file.getOriginalFilename());
+                        // Log the error e.printStackTrace();
+                    }
+                }
+            }
+        }
 
-        if (validImageUrls.isEmpty()) {
-            errors.add("圖片URL(至少一張)");
+        if (imageUrls.isEmpty()) { // Check if at least one image was successfully uploaded
+            errors.add("圖片(至少一張)");
         }
 
         // Check if product ID already exists
@@ -142,7 +159,7 @@ public class AdminController {
         // --- Save Product ---
         String productId = UUID.randomUUID().toString(); // Generate new product ID
         Product product = new Product(productId, name, parsedPrice, parsedStock);
-        for (String url : validImageUrls) {
+        for (String url : imageUrls) { // Use uploaded URLs
             product.addImage(new ProductImage(url, product));
         }
 
@@ -201,25 +218,46 @@ public class AdminController {
         return "admin_user_management";
     }
 
-    @PostMapping("/admin/user-management/delete")
-    public String deleteUser(@RequestParam String userId, HttpSession session, Model model) {
+    // Product Management - List Products
+    @GetMapping("/admin/product-management")
+    public String showProductManagement(HttpSession session, Model model) {
         if (session.getAttribute("adminUsername") == null) {
             return "redirect:/admin/login";
         }
+        List<Product> products = productRepository.findAllDistinct();
+        model.addAttribute("products", products);
+        return "admin_product_management";
+    }
 
-        Optional<UserModel> userOptional = userRepository.findById(userId);
-        if (userOptional.isPresent()) {
-            UserModel userToDelete = userOptional.get();
-            // Prevent deleting admin user itself
-            if ("admin".equals(userToDelete.getUsername()) && "ADMIN".equals(userToDelete.getRole())) {
-                model.addAttribute("message", "無法刪除管理員帳號！");
-            } else {
-                userRepository.deleteById(userId);
-                model.addAttribute("message", "會員刪除成功！");
-            }
-        } else {
-            model.addAttribute("message", "找不到該會員！");
+    // Product Management - Update Stock
+    @PostMapping("/admin/product/update-stock")
+    public String updateStock(@RequestParam String productId,
+                              @RequestParam int stock,
+                              HttpSession session) {
+        if (session.getAttribute("adminUsername") == null) {
+            return "redirect:/admin/login";
         }
-        return "redirect:/admin/user-management";
+        Optional<Product> productOptional = productRepository.findById(productId);
+        if (productOptional.isPresent()) {
+            Product product = productOptional.get();
+            product.setStock(stock);
+            productRepository.save(product);
+        }
+        return "redirect:/admin/product-management";
+    }
+
+    // Product Management - Toggle Product Listed Status
+    @PostMapping("/admin/product/toggle-listed")
+    public String toggleProductListedStatus(@RequestParam String productId, HttpSession session) {
+        if (session.getAttribute("adminUsername") == null) {
+            return "redirect:/admin/login";
+        }
+        Optional<Product> productOptional = productRepository.findById(productId);
+        if (productOptional.isPresent()) {
+            Product product = productOptional.get();
+            product.setListed(!product.isListed());
+            productRepository.save(product);
+        }
+        return "redirect:/admin/product-management";
     }
 }

@@ -15,6 +15,8 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductImage> images = new ArrayList<>();
 
+    private boolean listed = true;
+
     // JPA requires a no-arg constructor
     public Product() {}
 
@@ -23,6 +25,7 @@ public class Product {
         this.name = name;
         this.price = price;
         this.stock = stock;
+        this.listed = true;
     }
 
     // Getters and Setters
@@ -64,6 +67,14 @@ public class Product {
 
     public void setImages(List<ProductImage> images) {
         this.images = images;
+    }
+
+    public boolean isListed() {
+        return listed;
+    }
+
+    public void setListed(boolean listed) {
+        this.listed = listed;
     }
 
     // Helper methods for bidirectional relationship
