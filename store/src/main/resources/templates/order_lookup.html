@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>訂單查詢</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-5">
+    <h2>查詢您的訂單</h2>
+    <p>請輸入您的訂單編號及Email以查詢訂單狀態。</p>
+
+    <form th:action="@{/order-lookup}" method="post" class="mt-4">
+        <div class="form-group">
+            <label for="orderNumber">訂單編號</label>
+            <input type="text" class="form-control" id="orderNumber" name="orderNumber" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" class="form-control" id="email" name="email" required>
+        </div>
+        <button type="submit" class="btn btn-primary">查詢</button>
+    </form>
+
+    <div class="mt-5">
+        <!-- Error Message -->
+        <div th:if="${error}" class="alert alert-danger">
+            <p th:text="${error}"></p>
+        </div>
+
+        <!-- Order Details -->
+        <div th:if="${order}">
+            <h3>訂單詳細資料</h3>
+            <div class="card">
+                <div class="card-header">
+                    訂單編號: <strong th:text="${order.orderNumber}"></strong>
+                </div>
+                <div class="card-body">
+                    <p><strong>狀態:</strong> <span th:text="${order.status}"></span></p>
+                    <p><strong>Email:</strong> <span th:text="${order.email}"></span></p>
+                    <h5>訂單項目:</h5>
+                    <ul class="list-group">
+                        <li th:each="item : ${order.items}" class="list-group-item">
+                            <span th:text="${item.product.name}"></span> - 
+                            數量: <span th:text="${item.quantity}"></span> - 
+                            單價: <span th:text="${item.product.price}"></span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-footer">
+                    <strong>總金額: <span th:text="${order.totalPrice}"></span></strong>
+                </div>
+            </div>
+        </div>
+    </div>
+    <a href="/" class="btn btn-secondary mt-3">返回首頁</a>
+</div>
+</body>
+</html>
