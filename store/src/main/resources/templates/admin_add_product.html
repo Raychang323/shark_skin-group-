@@ -28,16 +28,12 @@
 
     <form th:action="@{/admin/add-product}" method="post" enctype="multipart/form-data">
         <div class="form-group">
-            <label for="productId">商品ID (唯一識別碼)</label>
-            <input type="text" class="form-control" id="productId" name="productId" th:value="${product?.p_id}" required>
-        </div>
-        <div class="form-group">
             <label for="name">商品名稱</label>
             <input type="text" class="form-control" id="name" name="name" th:value="${product?.name}" required>
         </div>
         <div class="form-group">
             <label for="price">價格</label>
-            <input type="number" class="form-control" id="price" name="price" th:value="${product?.price}" required min="0">
+            <input type="text" class="form-control" id="price" name="price" th:value="${product?.price}" required>
         </div>
 
         <div class="form-group">

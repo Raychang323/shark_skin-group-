@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Controller
@@ -83,8 +84,7 @@ public class AdminController {
     }
 
     @PostMapping("/admin/add-product")
-    public String addProduct(@RequestParam String productId,
-                             @RequestParam String name,
+    public String addProduct(@RequestParam String name,
                              @RequestParam String price,
                              @RequestParam String stock,
                              @RequestParam(value = "imageUrls", required = false) List<String> imageUrls,
@@ -97,9 +97,7 @@ public class AdminController {
         List<String> errors = new ArrayList<>();
 
         // --- Validation ---
-        if (productId == null || productId.trim().isEmpty()) {
-            errors.add("商品ID");
-        }
+        // Removed productId validation
         if (name == null || name.trim().isEmpty()) {
             errors.add("商品名稱");
         }
@@ -130,20 +128,19 @@ public class AdminController {
         }
 
         // Check if product ID already exists
-        if (productRepository.existsById(productId)) {
-            errors.add("商品ID已存在");
-        }
+        // This check is now removed as ID is generated
 
         if (!errors.isEmpty()) {
             model.addAttribute("message", "資料不完整或不正確：" + String.join(", ", errors));
             // Retain input values
-            model.addAttribute("product", new Product(productId, name, parsedPrice, 0)); // Pass partial product for form retention
+            model.addAttribute("product", new Product(UUID.randomUUID().toString(), name, parsedPrice, 0)); // Pass partial product for form retention
             // Pass image URLs back for retention
             model.addAttribute("imageUrls", imageUrls); // Pass original list to retain empty fields too
             return "admin_add_product";
         }
 
         // --- Save Product ---
+        String productId = UUID.randomUUID().toString(); // Generate new product ID
         Product product = new Product(productId, name, parsedPrice, parsedStock);
         for (String url : validImageUrls) {
             product.addImage(new ProductImage(url, product));
@@ -205,7 +202,7 @@ public class AdminController {
     }
 
     @PostMapping("/admin/user-management/delete")
-    public String deleteUser(@RequestParam Long userId, HttpSession session, Model model) {
+    public String deleteUser(@RequestParam String userId, HttpSession session, Model model) {
         if (session.getAttribute("adminUsername") == null) {
             return "redirect:/admin/login";
         }

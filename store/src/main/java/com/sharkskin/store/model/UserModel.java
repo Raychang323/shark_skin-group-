@@ -1,24 +1,22 @@
 package com.sharkskin.store.model;
 
 import java.time.Instant;
+import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient; // Import Transient
+import jakarta.persistence.Transient;
 
 @Entity //標記JPA實體類別
 @Table(name = "`user`") //標記資料庫table name
 public class UserModel {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; //流水id
+    private String id; // UUID as String
     @Column(name = "user_name", unique = true, nullable = false)
     private String username;
 	@Column(name = "password", nullable = false)
@@ -34,10 +32,15 @@ public class UserModel {
     @Transient // This field will not be persisted to the database
     private boolean hasOrders;
 
-	public Long getId() {
+    // Default constructor to generate UUID
+    public UserModel() {
+        this.id = UUID.randomUUID().toString();
+    }
+
+	public String getId() {
 		return id;
 	}
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 	public String getUsername() {
@@ -71,7 +74,7 @@ public class UserModel {
 		this.createdtime = createdtime;
 	}
 
-    public boolean getHasOrders() { // Use getHasOrders for boolean getters
+    public boolean getHasOrders() {
         return hasOrders;
     }
 

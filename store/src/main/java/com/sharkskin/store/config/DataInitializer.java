@@ -1,5 +1,11 @@
 package com.sharkskin.store.config;
 
+import java.util.Arrays;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+
 import com.sharkskin.store.model.Order;
 import com.sharkskin.store.model.OrderItem;
 import com.sharkskin.store.model.Product;
@@ -8,11 +14,6 @@ import com.sharkskin.store.model.UserModel;
 import com.sharkskin.store.repositories.OrderRepository;
 import com.sharkskin.store.repositories.ProductRepository;
 import com.sharkskin.store.repositories.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
-
-import java.util.Arrays;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -31,7 +32,7 @@ public class DataInitializer implements CommandLineRunner {
         // === Create Users ===
         UserModel user1 = createUserIfNotFound("test1", "1234", "testuser1@example.com", "USER");
         createUserIfNotFound("test2", "1234", "testuser2@example.com", "USER");
-        createUserIfNotFound("admin", "adminpass", "admin@example.com", "ADMIN"); // Admin user
+        createUserIfNotFound("admin", "1234", "admin@example.com", "ADMIN"); // Admin user
 
         // === Create Products ===
         Product p1 = createProductIfNotFound("p001", "鯊魚皮外套", 3000, 100, Arrays.asList(
