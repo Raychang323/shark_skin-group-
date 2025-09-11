@@ -2,7 +2,10 @@
 package com.sharkskin.store.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.sharkskin.store.model.UserModel;
 
@@ -17,5 +20,13 @@ public interface UserRepository extends   JpaRepository<UserModel, Long> {
     boolean existsByUsername(String username);
     // 檢查 Email 是否存在
     boolean existsByEmail(String email);
+    //檢查驗證
+    boolean existsByEmailAndEmailverfyFalse(String email);
+    
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM UserModel u WHERE u.email LIKE :email AND u.emailverfy = false")
+    int deleteNotVerificationMail(String email);
     //@Query(sql語法)可以新增特殊搜尋方法
+
 }

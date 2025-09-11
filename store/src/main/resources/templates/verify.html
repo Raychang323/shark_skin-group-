@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>會員驗證</title>
+</head>
+<body>
+<h1>會員驗證</h1>
+<div style="color: green;">
+    <p th:text="${message}"></p>
+</div>
+<form action="/verify" method="post">
+    <!-- 隱藏 username 傳給 Controller -->
+    <input type="hidden" name="email" th:value="${user.email}" />
+   <label for="code">驗證碼 (6 位數字):</label><br>
+    <input type="text" id="code" name="code" maxlength="6" required><br><br>
+    <button type="submit">驗證</button>
+</form>
+<a href="/register">回上一步</a>
+
+</body>
+</html>

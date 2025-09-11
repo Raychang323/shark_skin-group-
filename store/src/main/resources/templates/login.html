@@ -5,6 +5,10 @@
 <title>登入</title>
 </head>
 <body>
+<div style="color: green;">
+    <p th:text="${message}"></p>
+</div>
+
 <form action="login" method="post">
     帳號: <input type="text" name="username" required><br>
     密碼: <input type="password" name="password" required><br>

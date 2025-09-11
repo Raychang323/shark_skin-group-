@@ -1,6 +1,7 @@
 package com.sharkskin.store.model;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -29,6 +30,14 @@ public class UserModel {
 	@CreationTimestamp
     @Column(name = "create_time", nullable = false, updatable = false)
     private Instant createdtime; //註冊時間 自動紀錄
+	@CreationTimestamp
+    @Column(name = "update_time", nullable = false, updatable = true)
+    private LocalDateTime updatetime; //更新資料時間 自動紀錄
+	@Column(name = "verification_code")
+	private String verificationCode; //紀錄驗證碼
+	@Column(name = "emailverfy", nullable = false)
+	private boolean emailverfy =false; //email驗證 預設為false
+	
 	public Long getId() {
 		return id;
 	}
@@ -64,6 +73,25 @@ public class UserModel {
 	}
 	public void setCreatedtime(Instant createdtime) {
 		this.createdtime = createdtime;
+	}
+	public LocalDateTime getUpdatetime(){
+		return updatetime;
+	}
+	public void setUpdatetime(Instant updatetime){
+        this.updatetime = LocalDateTime.now();
+	}
+	public String getVerificationCode (){
+		return verificationCode;
+	}
+	public void setVerificationCode(String verificationCode){
+		this.verificationCode=verificationCode;
+	}
+	
+	public boolean getEmailverfy (){
+		return emailverfy;
+	}
+	public void setEmailverfy (boolean emailverfy){
+		this.emailverfy=emailverfy;
 	}
 	
 	

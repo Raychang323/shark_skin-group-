@@ -35,7 +35,7 @@ public class UserController {
         //註冊結果
         boolean success = userService.register(user);
         if (success) {
-            return "redirect:/login"; //重導到登入頁面
+            return "redirect:/verify"; //重導到登入頁面
         } else {
             model.addAttribute("message", "帳號或Email已存在！");
             return "register"; //重回註冊頁面
@@ -59,6 +59,21 @@ public class UserController {
             return "login";
         }
     }
+    //驗證頁面
+    @PostMapping("/verify")
+   public String verify(@RequestParam String code,
+            @RequestParam String email,
+            HttpSession session,
+            Model model){
+        boolean success = userService.verify(email, code );
+        if(success){
+            session.setAttribute("email", email);
+            return "redirect:/home";
+        }else{
+            model.addAttribute("message", "驗證失敗");
+            return "verify";
+        }
+            }
     //使用者首頁
     @GetMapping("/home")
     public String home(HttpSession session) {
@@ -79,7 +94,6 @@ public class UserController {
         model.addAttribute("user", user);
         return "update";
     }
-    
     @PostMapping("/update")
     public String update(@RequestParam String username,
             @RequestParam(required = false) String password,
@@ -101,13 +115,6 @@ public class UserController {
     	            System.out.println(username);
     	            System.out.println(email);
     	            System.out.println(password);
-
-
-
-    	            
-
-
-
     	        }
     	        UserModel user = userService.getUserByUsername(username);
     	        model.addAttribute("user", user);
