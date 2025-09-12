@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>付款成功</title>
+</head>
+<body>
+    <h1>付款成功 🎉</h1>
+    <p>訂單號碼: <span id="orderNumber"></span></p>
+    <a href="/home">返回首頁</a>
+
+    <script>
+        // 從 URL 參數取得 orderNumber
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderNumber = urlParams.get('orderNumber') || 'N/A';
+
+        document.getElementById("orderNumber").textContent = orderNumber;
+    </script>
+</body>
+</html>

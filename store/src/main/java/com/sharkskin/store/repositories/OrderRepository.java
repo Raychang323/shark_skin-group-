@@ -11,5 +11,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     // Spring Data JPA will automatically implement this method based on its name.
     List<Order> findByEmail(String email);
-
+    //for linepay
+    // 依 orderNumber 查找單筆訂單
+    Order findByOrderNumber(String orderNumber);
 }

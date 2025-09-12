@@ -36,7 +36,16 @@ public class UserModel {
 	private String verificationCode; //紀錄驗證碼
 	@Column(name = "emailverfy", nullable = false)
 	private boolean emailverfy =false; //email驗證 預設為false
+	@Column(name ="resettoken")
+	private String resettoken;
 	
+	
+	public String getResttokem () {
+		return resettoken;
+	}
+	public void setResttoken() {
+		this.resettoken = UUID.randomUUID().toString();
+	}
     @Transient // This field will not be persisted to the database
     private boolean hasOrders;
 

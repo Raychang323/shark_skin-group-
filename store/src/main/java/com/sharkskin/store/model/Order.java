@@ -11,7 +11,6 @@ public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String orderNumber;
     private String email; // To link with the user
     private String status;

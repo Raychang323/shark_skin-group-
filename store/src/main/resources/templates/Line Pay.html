@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>LINE Pay 付款</title>
+</head>
+<body>
+    <h1>LINE Pay 付款</h1>
+    <p>訂單號碼: <span id="orderNumber"></span></p>
+    <button id="payBtn">前往付款</button>
+
+    <script>
+        const orderNumber = "ORDER123456"; // 這裡改成你的訂單號碼
+        document.getElementById("orderNumber").textContent = orderNumber;
+
+        document.getElementById("payBtn").addEventListener("click", async () => {
+            try {
+                const response = await fetch(`/linepay/request?orderNumber=${orderNumber}`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+
+                if (data.info && data.info.paymentUrl && data.info.paymentUrl.web) {
+                    // 跳轉到 LINE Pay
+                    window.location.href = data.info.paymentUrl.web;
+                } else {
+                    alert("取得付款連結失敗");
+                    console.log(data);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("發生錯誤，請稍後再試");
+            }
+        });
+    </script>
+</body>
+</html>

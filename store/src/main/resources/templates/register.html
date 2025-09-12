@@ -5,7 +5,10 @@
 <title>註冊</title>
 </head>
 <body>
-<form action="register" method="post">
+<div style="color: green;">
+    <p th:text="${message}"></p>
+</div>
+<form action="/register" method="post">
     帳號: <input type="text" name="username" required><br>
     密碼: <input type="password" name="password" required><br>
     Email: <input type="email" name="email" required><br>

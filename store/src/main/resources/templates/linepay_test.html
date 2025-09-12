@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>LINE Pay Sandbox 測試</title>
+</head>
+<body>
+    <h1>LINE Pay Sandbox 測試</h1>
+    <p>訂單編號：<strong th:text="${orderNumber}"></strong></p>
+    <a th:href="${paymentUrl}" target="_blank">
+        點擊前往 Sandbox 付款
+    </a>
+</body>
+</html>

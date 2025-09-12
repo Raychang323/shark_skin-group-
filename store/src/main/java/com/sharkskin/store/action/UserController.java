@@ -27,6 +27,7 @@ public class UserController {
     public String register(@RequestParam String username,//前端傳入資料
                            @RequestParam String password,
                            @RequestParam String email,
+                           HttpSession session,
                            Model model) {
     	UserModel user = new UserModel();
     	user.setUsername(username);
@@ -35,6 +36,7 @@ public class UserController {
         //註冊結果
         boolean success = userService.register(user);
         if (success) {
+            session.setAttribute("user", user); // ← 加這行
             return "redirect:/verify"; //重導到登入頁面
         } else {
             model.addAttribute("message", "帳號或Email已存在！");
@@ -60,14 +62,29 @@ public class UserController {
         }
     }
     //驗證頁面
+    @GetMapping("/verify")
+    public String showVerify(  		
+    		HttpSession session,
+            Model model){
+    	UserModel user = (UserModel) session.getAttribute("user");
+        System.out.println(user.getEmail()); 
+        model.addAttribute("user", user);
+        return "verify";
+    }
     @PostMapping("/verify")
    public String verify(@RequestParam String code,
             @RequestParam String email,
+            @RequestParam String username,
             HttpSession session,
             Model model){
-        boolean success = userService.verify(email, code );
+    	
+    	UserModel user = new UserModel();
+    	user.setVerificationCode(code);
+        user.setEmail(email);
+        boolean success = userService.verify(username,email, code );
         if(success){
             session.setAttribute("email", email);
+            
             return "redirect:/home";
         }else{
             model.addAttribute("message", "驗證失敗");
@@ -120,6 +137,46 @@ public class UserController {
     	        model.addAttribute("user", user);
     	        return "home";
     }
+    //忘記密碼頁面
+		    @GetMapping("forgotpassword")
+		    public String showForgotPassword() {
+		        return "forgotpassword";
+		    }
+    
+    //忘記密碼
+    @PostMapping("/forgotpassword")
+    public String submitForgotPassword(@RequestParam String username, 
+    									HttpSession session,
+    									Model model) {
+    	boolean success = userService.restpassword(username);
+    	if(success) {
+    		model.addAttribute("message", "帳號不存在");
+    	}
+            UserModel user = userService.getUserByUsername(username);
+            String mes = ("重置連結: http://localhost:8080/resetpassword?token=" + user.getResttokem());
+            //  Email 發送
+            System.out.println("發送到 重設密碼連結Email到 " + user.getUsername()+" 的信箱");
+            userService.forgetpwdEmail(user, mes);
+            model.addAttribute("message", "重置密碼連結已發送到您的 Email");
+            return "forgotpassword";
+        }
+//    //重設密碼
+//    @GetMapping("/resetpassword")
+//    public String showResetPassword(@RequestParam String token, HttpSession session,Model model) {
+//        UserModel user = userService.findByResetToken(token);
+//        if(user != null) {
+//            model.addAttribute("token", token);
+//            return "reset-password";
+//        } else {
+//            model.addAttribute("message", "連結無效或已過期");
+//            return "forgot-password";
+//        }
+//    }
+    
+
+    
+    
+    
     //登出
     @GetMapping("/logout")
     public String logout(HttpSession session) {

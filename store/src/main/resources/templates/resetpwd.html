@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>重置密碼</title>
+</head>
+<body>
+<h1>重置密碼</h1>
+<p th:text="${message}"></p>
+<form action="/resetpassword" method="post">
+    <input type="hidden" name="token" th:value="${token}" />
+    <label for="newPassword">新密碼:</label><br>
+    <input type="password" id="newPassword" name="newPassword" required><br><br>
+    <button type="submit">確認重置</button>
+</form>
+<a href="/login">回登入頁面</a>
+</body>
+</html>

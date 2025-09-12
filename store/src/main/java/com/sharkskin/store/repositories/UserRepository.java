@@ -21,8 +21,9 @@ public interface UserRepository extends   JpaRepository<UserModel, String> {
     // 檢查 Email 是否存在
     boolean existsByEmail(String email);
     //檢查驗證
-    boolean existsByEmailAndEmailverfyFalse(String email);
-    
+    boolean existsByEmailAndEmailverfyTrue(String email);
+    //根據token尋長帳號
+    UserModel findByResettoken(String resettoken);
     @Modifying
     @Transactional
     @Query("DELETE FROM UserModel u WHERE u.email LIKE :email AND u.emailverfy = false")
