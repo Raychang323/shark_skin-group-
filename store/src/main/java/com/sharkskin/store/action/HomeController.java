@@ -118,6 +118,12 @@ public class HomeController {
         model.addAttribute("maxPrice", maxPrice);
         model.addAttribute("sort", sort);
 
+        // Create a map of product ID to stock for the current page content
+        java.util.Map<String, Integer> productStock = pageContent.stream()
+                .filter(p -> p != null && p.getP_id() != null)
+                .collect(java.util.stream.Collectors.toMap(Product::getP_id, Product::getStock, (existing, replacement) -> existing));
+        model.addAttribute("productStock", productStock);
+
         return "productList";
     }
 }

@@ -177,7 +177,7 @@
                 <td th:text="${product.price}">price</td>
                 <td th:text="${product.stock}">stock</td>
                 <td>
-                    <form th:action="@{/cart/add}" method="post">
+                    <form class="add-to-cart-form">
                         <input type="hidden" name="productId" th:value="${product.p_id}" />
                         <input type="hidden" name="quantity" value="1" />
                         <button type="submit" class="btn btn-primary btn-sm">加入購物車</button>
@@ -202,9 +202,15 @@
            th:classappend="${productPage.last} ? 'disabled'">最終頁</a>
     </div>
 
+    <script th:inline="javascript">
+    /*<![CDATA[*/
+        const productStock = /*[[${productStock}]]*/ {};
+    /*]]>*/
+    </script>
     <script>
         // Mini-cart functionality
         document.addEventListener('DOMContentLoaded', function() {
+            const miniCartContainer = document.getElementById('mini-cart-container');
             const miniCartButton = document.getElementById('mini-cart-button');
             const miniCartPopup = document.getElementById('mini-cart-popup');
             const cartItemCount = document.getElementById('cart-item-count');
@@ -212,52 +218,163 @@
             const miniCartTotal = document.getElementById('mini-cart-total');
 
             let isPopupVisible = false;
+            let currentCartSummary = {}; // Store the latest cart summary
 
             function fetchCartSummary() {
-                fetch('/api/cart/summary')
-                    .then(response => response.json())
+                return fetch('/api/cart/summary') // Return the fetch promise
+                    .then(response => {
+                        if (!response.ok) throw new Error('Failed to fetch summary');
+                        return response.json();
+                    })
                     .then(data => {
-                        // Update item count
+                        currentCartSummary = data; // Store latest summary
                         const totalQuantity = data.items.reduce((sum, item) => sum + item.quantity, 0);
                         cartItemCount.textContent = totalQuantity;
 
-                        // Update mini-cart items
-                        miniCartItems.innerHTML = ''; // Clear previous items
+                        miniCartItems.innerHTML = '';
                         if (data.items.length === 0) {
                             miniCartItems.innerHTML = '<li class="list-group-item">購物車是空的</li>';
                         } else {
                             data.items.forEach(item => {
                                 const li = document.createElement('li');
-                                li.className = 'list-group-item';
+                                li.className = 'list-group-item d-flex align-items-center';
                                 li.innerHTML = `
-                                    <span>${item.product.name}</span>
-                                    <span class="quantity">x${item.quantity}</span>
+                                    ${item.productImageUrl ? `<img src="${item.productImageUrl}" alt="${item.productName}" style="width: 50px; height: 50px; margin-right: 10px;">` : ''}
+                                    <span class="flex-grow-1">${item.productName}</span>
+                                    <div class="d-flex align-items-center me-2">
+                                        <button class="btn btn-sm btn-outline-secondary update-quantity" data-product-id="${item.productId}" data-change="-1">-</button>
+                                        <span class="quantity mx-2" data-current-quantity="${item.quantity}" data-product-id="${item.productId}">${item.quantity}</span>
+                                        <button class="btn btn-sm btn-outline-secondary update-quantity" data-product-id="${item.productId}" data-change="1">+</button>
+                                    </div>
+                                    <button class="btn btn-sm btn-danger remove-item" data-product-id="${item.productId}">移除</button>
                                 `;
                                 miniCartItems.appendChild(li);
                             });
                         }
-
-                        // Update total price
                         miniCartTotal.textContent = data.totalPrice.toFixed(2);
                     })
                     .catch(error => console.error('Error fetching cart summary:', error));
             }
 
-            // Toggle mini-cart pop-up
-            miniCartButton.addEventListener('click', function() {
-                isPopupVisible = !isPopupVisible;
-                miniCartPopup.style.display = isPopupVisible ? 'block' : 'none';
-                if (isPopupVisible) {
-                    fetchCartSummary(); // Fetch fresh data when opening
+            function debounce(func, delay) {
+                let timeout;
+                return function(...args) {
+                    const context = this;
+                    clearTimeout(timeout);
+                    return new Promise((resolve) => {
+                        timeout = setTimeout(() => resolve(func.apply(context, args)), delay);
+                    });
+                };
+            }
+
+            function updateCartItem(productId, change) {
+                return fetch('/cart/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `productId=${productId}&quantityChange=${change}`
+                }).then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => { throw new Error(text || 'Update failed') });
+                    }
+                    return response;
+                });
+            }
+
+            const debouncedUpdateCartItem = debounce(updateCartItem, 300);
+
+            function removeCartItem(productId) {
+                fetch('/cart/remove', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `productId=${productId}`
+                }).then(response => {
+                    if (response.ok) {
+                        fetchCartSummary();
+                    } else {
+                        response.text().then(alert);
+                    }
+                }).catch(err => alert(err.message));
+            }
+
+            // --- Event Delegation for Mini Cart ---
+            miniCartItems.addEventListener('click', function(event) {
+                const button = event.target.closest('.update-quantity, .remove-item');
+                if (!button) return;
+
+                const productId = button.dataset.productId;
+
+                if (button.classList.contains('update-quantity')) {
+                    const change = parseInt(button.dataset.change, 10);
+                    const itemInCart = currentCartSummary.items.find(item => item.productId === productId);
+                    const currentQuantity = itemInCart ? itemInCart.quantity : 0;
+                    const stock = productStock[productId] !== undefined ? productStock[productId] : Infinity;
+
+                    if (change > 0 && currentQuantity >= stock) {
+                        alert('已達庫存上限！');
+                        return;
+                    }
+                    
+                    // Optimistic UI Update
+                    const quantitySpan = button.parentElement.querySelector('.quantity');
+                    if(quantitySpan) quantitySpan.textContent = currentQuantity + change;
+
+                    debouncedUpdateCartItem(productId, change).then(fetchCartSummary).catch(() => {
+                        alert('更新失敗，請重試');
+                        fetchCartSummary(); // Revert UI by fetching fresh data
+                    });
+                }
+
+                if (button.classList.contains('remove-item')) {
+                    removeCartItem(productId);
                 }
             });
 
+            // Toggle mini-cart pop-up
+            miniCartButton.addEventListener('click', () => {
+                isPopupVisible = !isPopupVisible;
+                miniCartPopup.style.display = isPopupVisible ? 'block' : 'none';
+                if (isPopupVisible) fetchCartSummary();
+            });
+
             // Close pop-up if clicked outside
-            document.addEventListener('click', function(event) {
+            document.addEventListener('click', (event) => {
                 if (!miniCartContainer.contains(event.target) && isPopupVisible) {
                     isPopupVisible = false;
                     miniCartPopup.style.display = 'none';
                 }
+            });
+
+            // Handle add to cart form submission via AJAX
+            document.querySelectorAll('.add-to-cart-form').forEach(form => {
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    const formData = new FormData(form);
+                    const productId = formData.get('productId');
+                    const quantityToAdd = parseInt(formData.get('quantity'), 10);
+                    const stock = productStock[productId] !== undefined ? productStock[productId] : Infinity;
+
+                    const itemInCart = currentCartSummary.items ? currentCartSummary.items.find(item => item.productId === productId) : null;
+                    const quantityInCart = itemInCart ? itemInCart.quantity : 0;
+
+                    if (quantityInCart + quantityToAdd > stock) {
+                        alert('庫存不足，無法新增更多商品！');
+                        return;
+                    }
+
+                    fetch('/cart/add', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: `productId=${productId}&quantity=${quantityToAdd}`
+                    }).then(response => {
+                        if (response.ok) {
+                            fetchCartSummary();
+                        } else if (response.status === 401) {
+                            window.location.href = '/login';
+                        } else {
+                            alert('加入購物車失敗，請稍後再試。');
+                        }
+                    }).catch(error => alert('網路錯誤: ' + error.message));
+                });
             });
 
             // Initial fetch when page loads

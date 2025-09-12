@@ -24,13 +24,112 @@
     <p>價格: <span th:text="${product.price}"></span></p>
     <p>庫存: <span th:text="${product.stock}"></span></p>
 
-    <button th:if="${product.stock > 0}">新增至購物車</button>
+    <form class="add-to-cart-form" th:if="${product.stock > 0}">
+        <input type="hidden" name="productId" th:value="${product.p_id}" />
+        <input type="number" name="quantity" value="1" min="1" max="99" style="width: 60px;" />
+        <button type="submit">新增至購物車</button>
+    </form>
     <button th:if="${product.stock == 0}" disabled style="background-color: grey; color: white;">庫存不足</button>
 </div>
 
 <div th:if="${product == null}">
     <p>找不到商品</p>
 </div>
+
+</div>
+
+<div th:if="${product == null}">
+    <p>找不到商品</p>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const miniCartButton = document.getElementById('mini-cart-button');
+        const miniCartPopup = document.getElementById('mini-cart-popup');
+        const cartItemCount = document.getElementById('cart-item-count');
+        const miniCartItems = document.getElementById('mini-cart-items');
+        const miniCartTotal = document.getElementById('mini-cart-total');
+        const miniCartContainer = document.getElementById('mini-cart-container'); // Moved this line up
+
+        let isPopupVisible = false;
+
+        function fetchCartSummary() {
+            fetch('/api/cart/summary')
+                .then(response => response.json())
+                .then(data => {
+                    const totalQuantity = data.items && data.items.length > 0 ? data.items.reduce((sum, item) => sum + item.quantity, 0) : 0;
+                    cartItemCount.textContent = totalQuantity;
+
+                    miniCartItems.innerHTML = '';
+                    if (data.items.length === 0) {
+                        miniCartItems.innerHTML = '<li class="list-group-item">購物車是空的</li>';
+                    } else {
+                        data.items.forEach(item => {
+                            const li = document.createElement('li');
+                            li.className = 'list-group-item';
+                            li.innerHTML = `
+                                <span>${item.product.name}</span>
+                                <span class="quantity">x${item.quantity}</span>
+                            `;
+                            miniCartItems.appendChild(li);
+                        });
+                    }
+                    miniCartTotal.textContent = data.totalPrice.toFixed(2);
+                })
+                .catch(error => console.error('Error fetching cart summary:', error));
+        }
+
+        miniCartButton.addEventListener('click', function() {
+            isPopupVisible = !isPopupVisible;
+            miniCartPopup.style.display = isPopupVisible ? 'block' : 'none';
+            if (isPopupVisible) {
+                fetchCartSummary();
+            }
+        });
+
+        document.addEventListener('click', function(event) {
+            if (!miniCartContainer.contains(event.target) && isPopupVisible) {
+                isPopupVisible = false;
+                miniCartPopup.style.display = 'none';
+            }
+        });
+
+        fetchCartSummary();
+
+        document.querySelectorAll('.add-to-cart-form').forEach(form => {
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                const formData = new FormData(form);
+                const productId = formData.get('productId');
+                const quantity = formData.get('quantity');
+
+                fetch('/cart/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `productId=${productId}&quantity=${quantity}`,
+                    redirect: 'follow' // Add this line to follow redirects
+                })
+                .then(response => {
+                    if (response.redirected) { // Check if a redirect happened
+                        window.location.href = response.url; // Follow the redirect
+                    } else if (response.ok) {
+                        fetchCartSummary();
+                    } else {
+                        console.error('Error adding product to cart:', response.statusText);
+                        alert('加入購物車失敗，請稍後再試。');
+                    }
+                })
+                .catch(error => {
+                    console.error('Network error:', error);
+                    alert('網路錯誤，請檢查您的連線。');
+                });
+            });
+        });
+    });
+</script>
 
 </body>
 </html>

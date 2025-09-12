@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Cart</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Your Shopping Cart</h1>
+
+        <div th:if="${cart.items.empty}">
+            <p>Your cart is empty.</p>
+            <p><a href="/products">Continue Shopping</a></p>
+        </div>
+
+        <div th:unless="${cart.items.empty}">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item : ${cart.items}" th:id="'item-row-' + ${item.product.p_id}">
+                        <td th:text="${item.product.name}">Product Name</td>
+                        <td class="price" th:text="${item.product.price}">0.00</td>
+                        <td>
+                            <input type="number" class="quantity-input" th:value="${item.quantity}" min="1"
+                                   th:data-product-id="${item.product.p_id}"
+                                   th:data-old-quantity="${item.quantity}" />
+                        </td>
+                        <td class="subtotal" th:text="${item.quantity * item.product.price}">0.00</td>
+                        <td>
+                            <form th:action="@{/cart/remove}" method="post" style="display:inline;">
+                                <input type="hidden" name="productId" th:value="${item.product.p_id}" />
+                                <button type="submit">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <h3>Total: <span id="cart-total-price" th:text="${cart.totalPrice}">0.00</span></h3>
+            <p><a href="/checkout">Proceed to Checkout</a></p>
+            <p><a href="/products">Continue Shopping</a></p>
+        </div>
+    </div>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+    const productStock = /*[[${productStock}]]*/ {};
+/*]]>*/
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    function debounce(func, delay = 300) {
+        let timeoutId;
+        return function(...args) {
+            return new Promise((resolve, reject) => {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => {
+                    try {
+                        Promise.resolve(func.apply(this, args)).then(resolve).catch(reject);
+                    } catch (error) {
+                        reject(error);
+                    }
+                }, delay);
+            });
+        };
+    }
+
+    async function updateCartQuantity(productId, quantityChange) {
+        const formData = new FormData();
+        formData.append('productId', productId);
+        formData.append('quantityChange', quantityChange);
+
+        const response = await fetch('/cart/update', {
+            method: 'POST',
+            body: new URLSearchParams(formData)
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Failed to update cart: ${errorText}`);
+        }
+        
+        const summaryResponse = await fetch('/api/cart/summary');
+        if (!summaryResponse.ok) {
+            throw new Error('Failed to fetch cart summary.');
+        }
+        return summaryResponse.json();
+    }
+
+    const debouncedUpdate = debounce(updateCartQuantity);
+
+    document.querySelectorAll('.quantity-input').forEach(input => {
+        input.addEventListener('input', (event) => {
+            const target = event.target;
+            const productId = target.dataset.productId;
+            const oldQuantity = parseInt(target.dataset.oldQuantity, 10);
+            let newQuantity = parseInt(target.value, 10);
+            const stock = productStock[productId];
+
+            // Validate the new quantity against stock
+            if (stock !== undefined && newQuantity > stock) {
+                alert(`庫存不足！此商品最多只能購買 ${stock} 件。`);
+                target.value = stock; // Correct the input value to max stock
+                newQuantity = stock; // Update newQuantity for the following logic
+            }
+
+            if (isNaN(newQuantity) || newQuantity < 1) {
+                // If input is invalid (e.g. empty or zero), we don't want to revert immediately
+                // as the user might still be typing. But if they blur, we should handle it.
+                // For now, we just prevent the update call for invalid values.
+                return;
+            }
+
+            const quantityChange = newQuantity - oldQuantity;
+
+            if (quantityChange === 0) {
+                return; // No actual change, so do nothing.
+            }
+
+            debouncedUpdate(productId, quantityChange)
+                .then(summary => {
+                    target.dataset.oldQuantity = newQuantity;
+
+                    const itemInSummary = summary.items.find(item => item.productId === productId);
+                    const row = document.querySelector(`#item-row-${productId}`);
+                    
+                    if (row && itemInSummary) {
+                        const price = parseFloat(row.querySelector('.price').textContent);
+                        row.querySelector('.subtotal').textContent = (price * itemInSummary.quantity).toFixed(2);
+                    } else if (row && !itemInSummary) {
+                        row.remove();
+                    }
+
+                    document.getElementById('cart-total-price').textContent = summary.totalPrice.toFixed(2);
+                })
+                .catch(error => {
+                    console.error('Error updating cart:', error);
+                    target.value = oldQuantity;
+                    alert('Error updating cart. Your changes have been reverted.');
+                });
+        });
+
+        // Add a blur event to handle empty or invalid inputs when user clicks away
+        input.addEventListener('blur', (event) => {
+            const target = event.target;
+            if (isNaN(parseInt(target.value, 10)) || parseInt(target.value, 10) < 1) {
+                target.value = target.dataset.oldQuantity;
+            }
+        });
+    });
+});
+</script>
+</body>
+</html>

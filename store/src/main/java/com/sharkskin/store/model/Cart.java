@@ -16,11 +16,14 @@ public class Cart {
     private String userId; // Can be null for guest users
     private String sessionId; // For guest users
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER) // Changed to EAGER
     private List<CartItem> items = new ArrayList<>();
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    @Version
+    private Long version;
 
     @PrePersist
     protected void onCreate() {

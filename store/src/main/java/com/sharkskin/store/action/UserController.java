@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.sharkskin.store.model.UserModel;
 import com.sharkskin.store.service.UserService;
+import com.sharkskin.store.service.CartService; // Add this import
 
 import jakarta.servlet.http.HttpSession;
 
@@ -16,6 +17,8 @@ import jakarta.servlet.http.HttpSession;
 public class UserController {
     @Autowired
     private UserService userService;
+    @Autowired // Add this autowired annotation
+    private CartService cartService; // Declare cartService
 
     //到註冊頁面
     @GetMapping("/register")
@@ -53,6 +56,7 @@ public class UserController {
 			            Model model) {
     	if (userService.login(username, password)) {
             session.setAttribute("username", username);
+            cartService.mergeCarts(session); // Call mergeCarts after successful login
             return "redirect:/home";
         }else {
             model.addAttribute("message", "帳號或密碼錯誤！");
@@ -100,15 +104,15 @@ public class UserController {
             @RequestParam String email,
             HttpSession session,
             Model model) {
-    		boolean success = userService.update(username, password, email);
-    		 if (success) {
+    	boolean success = userService.update(username, password, email);
+    	 if (success) {
     	            // 更新 session 資料
     	            UserModel updatedUser = userService.getUserByUsername(username);
     	            session.setAttribute("username", updatedUser.getUsername());
     	            session.setAttribute("email", updatedUser.getEmail());
     	            model.addAttribute("message", "更新成功！");
     	            System.out.println("success");
-    		 } else {
+    	 } else {
     	            model.addAttribute("message", "更新失敗！");
     	            System.out.println("false");
     	            System.out.println(success);

@@ -2,6 +2,8 @@ package com.sharkskin.store.model;
 
 import jakarta.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore; // Add this import
+
 @Entity
 @Table(name = "cart_items")
 public class CartItem {
@@ -10,11 +12,12 @@ public class CartItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER) // Changed to EAGER
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore // Add this to prevent circular reference during JSON serialization
+    @ManyToOne(fetch = FetchType.LAZY) // Keep LAZY for the Cart reference
     @JoinColumn(name = "cart_id", nullable = false)
     private Cart cart;
 

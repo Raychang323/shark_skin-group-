@@ -13,6 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.List;
+import java.util.ArrayList;
+
+import com.sharkskin.store.dto.CartSummaryDto;
+import com.sharkskin.store.dto.CartItemDto;
 
 @Service
 public class CartService {
@@ -105,6 +110,27 @@ public class CartService {
     }
 
     @Transactional
+    public Cart updateProductQuantityByChange(HttpSession session, String productId, int quantityChange) {
+        Cart cart = getCart(session);
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+
+        CartItem item = cartItemRepository.findByCartAndProduct(cart, product)
+                .orElseThrow(() -> new IllegalArgumentException("Product not in cart"));
+
+        int newQuantity = item.getQuantity() + quantityChange;
+
+        if (newQuantity <= 0) {
+            cart.removeCartItem(item);
+            cartItemRepository.delete(item);
+        } else {
+            item.setQuantity(newQuantity);
+            cartItemRepository.save(item);
+        }
+        return cartRepository.save(cart);
+    }
+
+    @Transactional
     public Cart removeProductFromCart(HttpSession session, String productId) {
         Cart cart = getCart(session);
         Product product = productRepository.findById(productId)
@@ -117,4 +143,67 @@ public class CartService {
         cartItemRepository.delete(item);
         return cartRepository.save(cart);
     }
+
+    @Transactional
+    public void mergeCarts(HttpSession session) {
+        String userId = (String) session.getAttribute("username");
+        String sessionId = session.getId();
+
+        if (userId == null) {
+            return; // Only merge if a user is logged in
+        }
+
+        Optional<Cart> userCartOptional = cartRepository.findByUserId(userId);
+        Optional<Cart> guestCartOptional = cartRepository.findBySessionId(sessionId);
+
+        if (guestCartOptional.isPresent()) {
+            Cart guestCart = guestCartOptional.get();
+            if (userCartOptional.isPresent()) {
+                // User has a cart, merge guest cart items into user's cart
+                Cart userCart = userCartOptional.get();
+                guestCart.getItems().forEach(guestItem -> {
+                    Optional<CartItem> existingUserItem = userCart.getItems().stream()
+                            .filter(userItem -> userItem.getProduct().getP_id().equals(guestItem.getProduct().getP_id()))
+                            .findFirst();
+                    if (existingUserItem.isPresent()) {
+                        existingUserItem.get().setQuantity(existingUserItem.get().getQuantity() + guestItem.getQuantity());
+                        cartItemRepository.save(existingUserItem.get());
+                    } else {
+                        guestItem.setCart(userCart); // Assign to user's cart
+                        cartItemRepository.save(guestItem);
+                        userCart.addCartItem(guestItem);
+                    }
+                });
+                cartRepository.delete(guestCart); // Delete the guest cart
+                cartRepository.save(userCart); // Save the updated user cart
+            } else {
+                // User does not have a cart, assign guest cart to user
+                guestCart.setUserId(userId);
+                guestCart.setSessionId(null);
+                cartRepository.save(guestCart);
+            }
+        }
+    }
+
+    public com.sharkskin.store.dto.CartSummaryDto getCartSummaryDto(HttpSession session) {
+        Cart cart = getCart(session); // Get the full cart entity
+        List<com.sharkskin.store.dto.CartItemDto> itemDtos = new java.util.ArrayList<>();
+        if (cart.getItems() != null) {
+            for (CartItem item : cart.getItems()) {
+                String imageUrl = null;
+                if (item.getProduct().getImages() != null && !item.getProduct().getImages().isEmpty()) {
+                    imageUrl = item.getProduct().getImages().get(0).getSignedUrl();
+                }
+                itemDtos.add(new com.sharkskin.store.dto.CartItemDto(
+                    item.getProduct().getP_id(),
+                    item.getProduct().getName(),
+                    imageUrl,
+                    item.getProduct().getPrice(),
+                    item.getQuantity()
+                ));
+            }
+        }
+        return new com.sharkskin.store.dto.CartSummaryDto(itemDtos, cart.getTotalPrice());
+    }
 }
+
