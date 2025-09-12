@@ -8,6 +8,7 @@ import com.sharkskin.store.repositories.ProductRepository;
 import com.sharkskin.store.repositories.UserRepository;
 import com.sharkskin.store.service.UserService;
 import com.sharkskin.store.service.GcsImageUploadService; // Import GCS service
+import com.sharkskin.store.repositories.ProductImageRepository; // Import ProductImageRepository
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,7 +16,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile; // Import MultipartFile
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException; // Import IOException
 import java.util.ArrayList;
@@ -33,14 +36,16 @@ public class AdminController {
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
     private final GcsImageUploadService gcsImageUploadService; // Inject GCS service
+    private final ProductImageRepository productImageRepository; // Inject ProductImageRepository
 
     @Autowired
-    public AdminController(UserService userService, ProductRepository productRepository, UserRepository userRepository, OrderRepository orderRepository, GcsImageUploadService gcsImageUploadService) {
+    public AdminController(UserService userService, ProductRepository productRepository, UserRepository userRepository, OrderRepository orderRepository, GcsImageUploadService gcsImageUploadService, ProductImageRepository productImageRepository) {
         this.userService = userService;
         this.productRepository = productRepository;
         this.userRepository = userRepository;
         this.orderRepository = orderRepository;
         this.gcsImageUploadService = gcsImageUploadService;
+        this.productImageRepository = productImageRepository;
     }
 
     // Admin Login
@@ -225,26 +230,20 @@ public class AdminController {
             return "redirect:/admin/login";
         }
         List<Product> products = productRepository.findAllDistinct();
+        // Generate signed URLs for each product image
+        for (Product product : products) {
+            if (product.getImages() != null) {
+                for (ProductImage image : product.getImages()) {
+                    String signedUrl = gcsImageUploadService.generateSignedUrl(image.getImageUrl(), 60); // 60-minute expiration
+                    image.setSignedUrl(signedUrl);
+                }
+            }
+        }
         model.addAttribute("products", products);
         return "admin_product_management";
     }
 
-    // Product Management - Update Stock
-    @PostMapping("/admin/product/update-stock")
-    public String updateStock(@RequestParam String productId,
-                              @RequestParam int stock,
-                              HttpSession session) {
-        if (session.getAttribute("adminUsername") == null) {
-            return "redirect:/admin/login";
-        }
-        Optional<Product> productOptional = productRepository.findById(productId);
-        if (productOptional.isPresent()) {
-            Product product = productOptional.get();
-            product.setStock(stock);
-            productRepository.save(product);
-        }
-        return "redirect:/admin/product-management";
-    }
+    
 
     // Product Management - Toggle Product Listed Status
     @PostMapping("/admin/product/toggle-listed")
@@ -258,6 +257,117 @@ public class AdminController {
             product.setListed(!product.isListed());
             productRepository.save(product);
         }
+        return "redirect:/admin/product-management";
+    }
+
+    // Product Management - Show Edit Product Form
+    @GetMapping("/admin/product/edit/{productId}")
+    public String showEditProductForm(@PathVariable String productId, HttpSession session, Model model) {
+        if (session.getAttribute("adminUsername") == null) {
+            return "redirect:/admin/login";
+        }
+
+        Optional<Product> productOptional = productRepository.findById(productId);
+        if (productOptional.isEmpty()) {
+            // Product not found, redirect to product management with an error
+            return "redirect:/admin/product-management"; // Or a dedicated error page
+        }
+
+        Product product = productOptional.get();
+
+        // Generate signed URLs for each product image
+        if (product.getImages() != null) {
+            for (ProductImage image : product.getImages()) {
+                String signedUrl = gcsImageUploadService.generateSignedUrl(image.getImageUrl(), 60); // 60-minute expiration
+                image.setSignedUrl(signedUrl);
+            }
+        }
+
+        model.addAttribute("product", product);
+        return "admin_edit_product";
+    }
+
+    // Product Management - Update Product
+    @PostMapping("/admin/product/update")
+    public String updateProduct(@RequestParam String productId,
+                                @RequestParam String name,
+                                @RequestParam String price,
+                                @RequestParam String stock,
+                                @RequestParam(value = "imagesToDelete", required = false) List<Long> imagesToDelete,
+                                @RequestParam(value = "newImageFiles", required = false) List<MultipartFile> newImageFiles,
+                                HttpSession session,
+                                RedirectAttributes redirectAttributes) {
+        if (session.getAttribute("adminUsername") == null) {
+            return "redirect:/admin/login";
+        }
+
+        Optional<Product> productOptional = productRepository.findById(productId);
+        if (productOptional.isEmpty()) {
+            redirectAttributes.addFlashAttribute("message", "商品未找到！");
+            return "redirect:/admin/product-management";
+        }
+
+        Product product = productOptional.get();
+
+        // --- Update basic product details ---
+        product.setName(name);
+        try {
+            product.setPrice(Integer.parseInt(price));
+        } catch (NumberFormatException e) {
+            redirectAttributes.addFlashAttribute("message", "價格格式不正確！");
+            return "redirect:/admin/product/edit/" + productId;
+        }
+        try {
+            product.setStock(Integer.parseInt(stock));
+        } catch (NumberFormatException e) {
+            redirectAttributes.addFlashAttribute("message", "庫存格式不正確！");
+            return "redirect:/admin/product/edit/" + productId;
+        }
+
+        // --- Handle image deletion ---
+        if (imagesToDelete != null && !imagesToDelete.isEmpty()) {
+            List<ProductImage> imagesToRemove = new ArrayList<>();
+            for (Long imageId : imagesToDelete) {
+                Optional<ProductImage> imgOptional = productImageRepository.findById(imageId);
+                if (imgOptional.isPresent()) {
+                    ProductImage img = imgOptional.get();
+                    // Delete from GCS
+                    gcsImageUploadService.deleteFile(img.getImageUrl());
+                    imagesToRemove.add(img);
+                }
+            }
+            // Remove from product's image list and database
+            product.getImages().removeAll(imagesToRemove);
+            productImageRepository.deleteAll(imagesToRemove);
+        }
+
+        // --- Handle new image uploads ---
+        int currentImageCount = product.getImages() != null ? product.getImages().size() : 0;
+        final int MAX_IMAGES = 10;
+
+        if (newImageFiles != null && !newImageFiles.isEmpty()) {
+            for (MultipartFile file : newImageFiles) {
+                if (!file.isEmpty()) {
+                    if (currentImageCount >= MAX_IMAGES) {
+                        redirectAttributes.addFlashAttribute("message", "圖片數量已達上限（" + MAX_IMAGES + "張）！");
+                        break; // Stop processing new files
+                    }
+                    try {
+                        String imageUrl = gcsImageUploadService.uploadFile(file);
+                        product.addImage(new ProductImage(imageUrl, product));
+                        currentImageCount++;
+                    } catch (IOException e) {
+                        redirectAttributes.addFlashAttribute("message", "圖片上傳失敗: " + file.getOriginalFilename());
+                        // Log the error e.printStackTrace();
+                    }
+                }
+            }
+        }
+
+        // --- Save updated product ---
+        productRepository.save(product);
+
+        redirectAttributes.addFlashAttribute("successMessage", "商品更新成功！");
         return "redirect:/admin/product-management";
     }
 }

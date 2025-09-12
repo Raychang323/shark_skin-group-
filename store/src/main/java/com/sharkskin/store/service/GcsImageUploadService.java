@@ -71,4 +71,8 @@ public class GcsImageUploadService {
     private String generateFileName(MultipartFile multiPart) {
         return UUID.randomUUID().toString() + "-" + multiPart.getOriginalFilename().replace(" ", "_");
     }
+
+    public void deleteFile(String fileName) {
+        storage.delete(BlobId.of(bucketName, fileName));
+    }
 }

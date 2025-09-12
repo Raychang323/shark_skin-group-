@@ -4,6 +4,7 @@ import com.sharkskin.store.model.Order;
 import com.sharkskin.store.model.UserModel;
 import com.sharkskin.store.service.OrderService;
 import com.sharkskin.store.service.UserService;
+import com.sharkskin.store.service.GcsImageUploadService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,6 +25,9 @@ public class OrderController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private GcsImageUploadService gcsImageUploadService;
+
     // Public order lookup
     @GetMapping("/order-lookup")
     public String showOrderLookupPage() {
@@ -35,7 +39,17 @@ public class OrderController {
         Optional<Order> orderOptional = orderService.findOrderByOrderNumberAndEmail(orderNumber, email);
 
         if (orderOptional.isPresent()) {
-            model.addAttribute("order", orderOptional.get());
+            Order order = orderOptional.get();
+            // Generate signed URLs for each product image in the order items
+            order.getItems().forEach(item -> {
+                if (item.getProduct() != null && item.getProduct().getImages() != null) {
+                    item.getProduct().getImages().forEach(image -> {
+                        String signedUrl = gcsImageUploadService.generateSignedUrl(image.getImageUrl(), 60); // 60-minute expiration
+                        image.setSignedUrl(signedUrl);
+                    });
+                }
+            });
+            model.addAttribute("order", order);
         } else {
             model.addAttribute("error", "訂單號碼或email錯誤");
         }

@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <title>訂單查詢</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .order-product-image { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; }
+    </style>
 </head>
 <body>
 <div class="container mt-5">
@@ -40,10 +43,16 @@
                     <p><strong>Email:</strong> <span th:text="${order.email}"></span></p>
                     <h5>訂單項目:</h5>
                     <ul class="list-group">
-                        <li th:each="item : ${order.items}" class="list-group-item">
-                            <span th:text="${item.product.name}"></span> - 
-                            數量: <span th:text="${item.quantity}"></span> - 
-                            單價: <span th:text="${item.product.price}"></span>
+                        <li th:each="item : ${order.items}" class="list-group-item d-flex align-items-center">
+                            <img th:if="${item.product.images != null and not #lists.isEmpty(item.product.images)}" 
+                                 th:src="${item.product.images[0].signedUrl}" 
+                                 alt="Product Image" class="order-product-image mr-3">
+                            <div>
+                                <div>
+                                <span th:text="${item.product.name}"></span> - 
+                                數量: <span th:text="${item.quantity}"></span> 單價: <span th:text="${item.product.price}"></span> 共: <span th:text="${item.quantity * item.product.price}"></span>
+                            </div>
+                            </div>
                         </li>
                     </ul>
                 </div>

@@ -10,7 +10,10 @@ public class ProductImage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String imageUrl;
+    private String imageUrl; // This stores the GCS object name (file name)
+
+    @Transient // This field will not be persisted to the database
+    private String signedUrl; // This will hold the temporary signed URL for display
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
@@ -39,6 +42,14 @@ public class ProductImage {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getSignedUrl() {
+        return signedUrl;
+    }
+
+    public void setSignedUrl(String signedUrl) {
+        this.signedUrl = signedUrl;
     }
 
     public Product getProduct() {

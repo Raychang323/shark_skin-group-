@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>管理員 - 編輯商品</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body { background-color: #f8f9fa; padding: 30px; }
+        .container { background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h2 { margin-bottom: 30px; color: #343a40; text-align: center; }
+        .form-group label { font-weight: bold; }
+        .image-preview-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+        .image-preview-item { border: 1px solid #ddd; padding: 5px; border-radius: 5px; text-align: center; }
+        .image-preview-item img { max-width: 100px; max-height: 100px; display: block; margin: 0 auto 5px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>編輯商品</h2>
+
+    <div th:if="${message}" class="alert alert-danger" role="alert">
+        <p th:text="${message}"></p>
+    </div>
+
+    <form th:action="@{/admin/product/update}" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="productId" th:value="${product.p_id}">
+
+        <div class="form-group">
+            <label for="name">商品名稱:</label>
+            <input type="text" class="form-control" id="name" name="name" th:value="${product.name}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="price">價格:</label>
+            <input type="number" class="form-control" id="price" name="price" th:value="${product.price}" required min="0">
+        </div>
+
+        <div class="form-group">
+            <label for="stock">庫存:</label>
+            <input type="number" class="form-control" id="stock" name="stock" th:value="${product.stock}" required min="0">
+        </div>
+
+        <div class="form-group">
+            <label>現有圖片:</label>
+            <div class="image-preview-container">
+                <div th:each="image : ${product.images}" class="image-preview-item">
+                    <img th:src="${image.signedUrl}" alt="Product Image">
+                    <input type="checkbox" name="imagesToDelete" th:value="${image.id}"> 刪除
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="newImageFiles">新增圖片 (最多10張，包含現有圖片):</label>
+            <input type="file" class="form-control-file" id="newImageFiles" name="newImageFiles" multiple accept="image/*">
+        </div>
+
+        <button type="submit" class="btn btn-primary">更新商品</button>
+        <a href="/admin/product-management" class="btn btn-secondary">取消</a>
+    </form>
+</div>
+</body>
+</html>

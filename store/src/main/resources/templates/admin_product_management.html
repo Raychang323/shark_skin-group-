@@ -28,7 +28,7 @@
                 <th>圖片</th>
                 <th>商品名稱</th>
                 <th>價格</th>
-                <th>庫存</th>
+                
                 <th>狀態</th>
                 <th>操作</th>
             </tr>
@@ -36,17 +36,11 @@
         <tbody>
             <tr th:each="product : ${products}" th:class="${!product.isListed()} ? 'unlisted-product' : ''">
                 <td>
-                    <img th:if="${product.images != null and not #lists.isEmpty(product.images)}" th:src="@{/api/images/{fileName}(fileName=${product.images[0].imageUrl})}" alt="Product Image" class="product-image">
+                    <img th:if="${product.images != null and not #lists.isEmpty(product.images)}" th:src="${product.images[0].signedUrl}" alt="Product Image" class="product-image">
                 </td>
                 <td th:text="${product.name}"></td>
                 <td th:text="${product.price}"></td>
-                <td>
-                    <form th:action="@{/admin/product/update-stock}" method="post" style="display:inline;">
-                        <input type="hidden" name="productId" th:value="${product.p_id}">
-                        <input type="number" name="stock" th:value="${product.stock}" class="form-control" style="width: 80px; display: inline-block;">
-                        <button type="submit" class="btn btn-primary btn-sm">更新</button>
-                    </form>
-                </td>
+                
                 <td th:text="${product.isListed()} ? '已上架' : '已下架'"></td>
                 <td>
                     <form th:action="@{/admin/product/toggle-listed}" method="post" style="display:inline;">
@@ -56,6 +50,7 @@
                                 th:text="${product.isListed()} ? '下架' : '上架'"
                                 th:onclick="'return confirm(\'確定要' + (${product.isListed()} ? '下架' : '上架') + '此商品嗎？\');'"></button>
                     </form>
+                    <a th:href="@{/admin/product/edit/{id}(id=${product.p_id})}" class="btn btn-warning btn-sm">編輯</a>
                 </td>
             </tr>
         </tbody>

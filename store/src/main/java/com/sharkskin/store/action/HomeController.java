@@ -1,7 +1,9 @@
 package com.sharkskin.store.action;
 
 import com.sharkskin.store.model.Product;
+import com.sharkskin.store.model.ProductImage;
 import com.sharkskin.store.repositories.ProductRepository;
+import com.sharkskin.store.service.GcsImageUploadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -20,13 +22,31 @@ import java.util.stream.Stream;
 @Controller
 public class HomeController {
 
+    private final ProductRepository productRepository;
+    private final GcsImageUploadService gcsImageUploadService;
+
     @Autowired
-    private ProductRepository productRepository;
+    public HomeController(ProductRepository productRepository, GcsImageUploadService gcsImageUploadService) {
+        this.productRepository = productRepository;
+        this.gcsImageUploadService = gcsImageUploadService;
+    }
+
+    // Helper method to generate signed URLs for a list of products
+    private void generateSignedUrlsForProducts(List<Product> products) {
+        for (Product product : products) {
+            for (ProductImage image : product.getImages()) {
+                String fileName = image.getImageUrl();
+                String signedUrl = gcsImageUploadService.generateSignedUrl(fileName, 60); // 60-minute expiration
+                image.setSignedUrl(signedUrl);
+            }
+        }
+    }
 
     @GetMapping("/")
     public String home(Model model) {
         List<Product> allProducts = productRepository.findAllByListedTrueDistinct();
         Collections.shuffle(allProducts); // Shuffle products for a random order on each load
+        generateSignedUrlsForProducts(allProducts); // Generate signed URLs
         model.addAttribute("products", allProducts);
         return "index";
     }
@@ -85,6 +105,10 @@ public class HomeController {
         int end = Math.min((start + pageable.getPageSize()), filteredProducts.size());
 
         List<Product> pageContent = filteredProducts.subList(start, end);
+        
+        // Generate signed URLs for the paginated content
+        generateSignedUrlsForProducts(pageContent);
+
         Page<Product> productPage = new PageImpl<>(pageContent, pageable, filteredProducts.size());
 
         // Add page and search params to model
