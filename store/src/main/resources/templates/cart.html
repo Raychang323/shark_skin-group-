@@ -18,6 +18,7 @@
             <table>
                 <thead>
                     <tr>
+                        <th>Product Image</th>
                         <th>Product</th>
                         <th>Price</th>
                         <th>Quantity</th>
@@ -27,6 +28,11 @@
                 </thead>
                 <tbody>
                     <tr th:each="item : ${cart.items}" th:id="'item-row-' + ${item.product.p_id}">
+                        <td>
+                            <img th:if="${item.product.images != null and !item.product.images.empty}"
+                                 th:src="${item.product.images[0].signedUrl}"
+                                 alt="Product Image" style="width: 100px; height: 100px; object-fit: cover;"/>
+                        </td>
                         <td th:text="${item.product.name}">Product Name</td>
                         <td class="price" th:text="${item.product.price}">0.00</td>
                         <td>

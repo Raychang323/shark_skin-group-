@@ -92,6 +92,12 @@
             margin-left: 10px;
             font-weight: bold;
         }
+        .mini-cart-image {
+            width: 50px;
+            height: 50px;
+            object-fit: cover; /* This crops the image to fit the square dimensions */
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body>
@@ -239,7 +245,7 @@
                                 const li = document.createElement('li');
                                 li.className = 'list-group-item d-flex align-items-center';
                                 li.innerHTML = `
-                                    ${item.productImageUrl ? `<img src="${item.productImageUrl}" alt="${item.productName}" style="width: 50px; height: 50px; margin-right: 10px;">` : ''}
+                                    ${item.productImageUrl ? `<img class="mini-cart-image" src="${item.productImageUrl}" alt="${item.productName}">` : ''}
                                     <span class="flex-grow-1">${item.productName}</span>
                                     <div class="d-flex align-items-center me-2">
                                         <button class="btn btn-sm btn-outline-secondary update-quantity" data-product-id="${item.productId}" data-change="-1">-</button>
@@ -313,15 +319,42 @@
                         alert('已達庫存上限！');
                         return;
                     }
-                    
-                    // Optimistic UI Update
-                    const quantitySpan = button.parentElement.querySelector('.quantity');
-                    if(quantitySpan) quantitySpan.textContent = currentQuantity + change;
 
-                    debouncedUpdateCartItem(productId, change).then(fetchCartSummary).catch(() => {
-                        alert('更新失敗，請重試');
-                        fetchCartSummary(); // Revert UI by fetching fresh data
-                    });
+                    const quantitySpan = button.parentElement.querySelector('.quantity');
+                    const currentQuantityInDOM = quantitySpan ? parseInt(quantitySpan.textContent, 10) : currentQuantity;
+
+                    // Optimistic UI Update
+                    if(quantitySpan) quantitySpan.textContent = currentQuantityInDOM + change;
+
+                    debouncedUpdateCartItem(productId, change)
+                        .then(() => fetch('/api/cart/summary')) // On success, fetch summary but don't re-render all
+                        .then(response => response.json())
+                        .then(summary => {
+                            // Update totals from the new summary
+                            currentCartSummary = summary; // Update the global summary object
+                            const totalQuantity = summary.items.reduce((sum, item) => sum + item.quantity, 0);
+                            cartItemCount.textContent = totalQuantity;
+                            miniCartTotal.textContent = summary.totalPrice.toFixed(2);
+
+                            // Verify the quantity of the item we changed is correct
+                            const updatedItem = summary.items.find(item => item.productId === productId);
+                            const itemRow = quantitySpan ? quantitySpan.closest('li') : null;
+
+                            if (updatedItem && quantitySpan) {
+                                quantitySpan.textContent = updatedItem.quantity;
+                                quantitySpan.dataset.currentQuantity = updatedItem.quantity;
+                            } else if (!updatedItem && itemRow) {
+                                // Item was removed (quantity went to 0), so remove the whole <li>
+                                itemRow.remove();
+                            }
+                        })
+                        .catch(() => {
+                            alert('更新失敗，請重試');
+                            // Revert optimistic update on failure
+                            if(quantitySpan) quantitySpan.textContent = currentQuantityInDOM;
+                            // Re-fetch everything to ensure UI is correct
+                            fetchCartSummary(); 
+                        });
                 }
 
                 if (button.classList.contains('remove-item')) {

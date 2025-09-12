@@ -3,6 +3,7 @@ package com.sharkskin.store.action;
 import com.sharkskin.store.dto.CartSummaryDto; // Add this import
 import com.sharkskin.store.service.CartService;
 import com.sharkskin.store.model.Cart;
+import com.sharkskin.store.service.GcsImageUploadService;
 import org.springframework.stereotype.Controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,10 +21,12 @@ import java.util.stream.Collectors;
 public class CartController {
 
     private final CartService cartService;
+    private final GcsImageUploadService gcsImageUploadService;
 
     @Autowired
-    public CartController(CartService cartService) {
+    public CartController(CartService cartService, GcsImageUploadService gcsImageUploadService) {
         this.cartService = cartService;
+        this.gcsImageUploadService = gcsImageUploadService;
     }
 
     // Display the full cart page
@@ -34,9 +37,20 @@ public class CartController {
             return "redirect:/login"; // Not logged in, redirect to login page
         }
         Cart cart = cartService.getCart(session);
-        model.addAttribute("cart", cart);
 
         if (cart != null && cart.getItems() != null) {
+            // Generate signed URLs for each product image in the cart
+            for (com.sharkskin.store.model.CartItem item : cart.getItems()) {
+                com.sharkskin.store.model.Product product = item.getProduct();
+                if (product != null && product.getImages() != null && !product.getImages().isEmpty()) {
+                    // Assuming we only need the first image for the cart view
+                    com.sharkskin.store.model.ProductImage image = product.getImages().get(0);
+                    String fileName = image.getImageUrl();
+                    String signedUrl = gcsImageUploadService.generateSignedUrl(fileName, 60); // 60-minute expiration
+                    image.setSignedUrl(signedUrl);
+                }
+            }
+
             Map<String, Integer> productStock = cart.getItems().stream()
                 .filter(item -> item != null && item.getProduct() != null && item.getProduct().getP_id() != null)
                 .collect(Collectors.toMap(
@@ -47,6 +61,7 @@ public class CartController {
             model.addAttribute("productStock", productStock);
         }
 
+        model.addAttribute("cart", cart);
         return "cart"; // This will map to cart.html
     }
 

@@ -6,6 +6,8 @@ import com.sharkskin.store.model.Product;
 import com.sharkskin.store.repositories.CartItemRepository;
 import com.sharkskin.store.repositories.CartRepository;
 import com.sharkskin.store.repositories.ProductRepository;
+import com.sharkskin.store.repositories.UserRepository;
+import com.sharkskin.store.service.GcsImageUploadService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,11 +28,16 @@ public class CartService {
     private final CartItemRepository cartItemRepository;
     private final ProductRepository productRepository;
 
+    private final UserRepository userRepository;
+    private final GcsImageUploadService gcsImageUploadService; // Add this
+
     @Autowired
-    public CartService(CartRepository cartRepository, CartItemRepository cartItemRepository, ProductRepository productRepository) {
+    public CartService(CartRepository cartRepository, CartItemRepository cartItemRepository, ProductRepository productRepository, UserRepository userRepository, GcsImageUploadService gcsImageUploadService) { // Add GcsImageUploadService
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
         this.productRepository = productRepository;
+        this.userRepository = userRepository;
+        this.gcsImageUploadService = gcsImageUploadService; // Add this
     }
 
     @Transactional
@@ -191,13 +198,16 @@ public class CartService {
         if (cart.getItems() != null) {
             for (CartItem item : cart.getItems()) {
                 String imageUrl = null;
-                if (item.getProduct().getImages() != null && !item.getProduct().getImages().isEmpty()) {
-                    imageUrl = item.getProduct().getImages().get(0).getSignedUrl();
+                // Check if product and images are not null and not empty
+                if (item.getProduct() != null && item.getProduct().getImages() != null && !item.getProduct().getImages().isEmpty()) {
+                    // Generate a signed URL for the first image
+                    String fileName = item.getProduct().getImages().get(0).getImageUrl();
+                    imageUrl = gcsImageUploadService.generateSignedUrl(fileName, 60); // 60-minute expiration
                 }
                 itemDtos.add(new com.sharkskin.store.dto.CartItemDto(
                     item.getProduct().getP_id(),
                     item.getProduct().getName(),
-                    imageUrl,
+                    imageUrl, // Use the generated signed URL
                     item.getProduct().getPrice(),
                     item.getQuantity()
                 ));
