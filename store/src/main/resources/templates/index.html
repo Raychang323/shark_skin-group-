@@ -53,14 +53,11 @@
 
 
 
-/*首頁泡泡特效*/
-
-.
-
-        body {font-family: 'Noto Sans TC', sans-serif;}
-        
+        /*首頁泡泡特效*/
+        .body {font-family: 'Noto Sans TC', sans-serif;}
         .bubble-header h1 {font-family: 'Zen Kaku Gothic New', sans-serif;}
         .bubble-header h2 { text-align: center; }
+
 
         .product-carousel-container {
           width: 50%;
@@ -97,7 +94,7 @@
             font-size: 16px;
         }
         .product-item .price {
-            color: #e91e63;
+            color: #0bafd8;
             font-size: 18px;
             font-weight: bold;
         }
@@ -224,7 +221,7 @@
         }
 
         .popup-box {
-            background: linear-gradient(135deg, #ff8a65, #ff7043);
+            background: linear-gradient(135deg, #02c4f5, #05cbee);
             color: white;
             padding: 32px;
             border-radius: 14px;
@@ -323,8 +320,8 @@
 
 
     <div class="view-all-container">
-        <a href="/products" class="view-all-button">查看所有商品 &rarr;</a>
-        <a href="/order-lookup" class="view-all-button" style="background-color: #6c757d; margin-left: 10px;">查詢訂單</a>
+        <a href="/products" class="view-all-button">查看所有商品 </a>
+        <a href="/order-lookup" class="view-all-button" >查詢訂單</a>
     </div>
 
 
@@ -509,49 +506,30 @@ console.log('特效測試');
   <!---信任標誌區--->
 
 <main>
-    <div class="trust-wrapper">
-      <h2>我們的保障</h2>
-      <div class="trust-section">
-        <div class="trust-item">
-          <div class="trust-icon">🔒</div>
-          <div class="trust-label">SSL 安全加密</div>
-          <div class="tooltip">訂購單已加密處理，交易更安心</div>
-        </div>
-        <div class="trust-item">
-          <div class="trust-icon">📦</div>
-          <div class="trust-label">隱密包裝</div>
-          <div class="tooltip">不顯示商品資訊，保護隱私</div>
-        </div>
-        <div class="trust-item">
-          <div class="trust-icon">🚚</div>
-          <div class="trust-label">快速出貨</div>
-          <div class="tooltip">下單後48小時出貨，隨時快寄寄出</div>
-        </div>
-        <div class="trust-item">
-          <div class="trust-icon">🏆</div>
-          <div class="trust-label">原廠公司貨</div>
-          <div class="tooltip">官方授權，品質有保障</div>
-        </div>
-        <div class="trust-item">
-          <div class="trust-icon">🏪</div>
-          <div class="trust-label">超商取貨付款</div>
-        </div>
-        <div class="trust-item">
-          <div class="trust-icon">💳</div>
-          <div class="trust-label">多元付款</div>
-          <div class="tooltip">只有LINE Pay</div>
-        </div>
-        <div class="trust-item">
-          <div class="trust-icon">👥</div>
-          <div class="trust-label">會員專屬優惠</div>
-          <div class="tooltip">登入專屬帳號，多重好禮</div>
-        </div>
-      </div>
-    </div>
-  </main>
+<div class="trust-wrapper">
+  <div class="trust-scroll">
+    <div class="trust-track">
 
-  <footer>
-    <p>© 2025 經營良好的店鋪 SharkSkin Store</p>
+      <div class="trust-item">🔒 SSL 安全加密</div>
+      <div class="trust-item">📦 隱密包裝</div>
+      <div class="trust-item">🚚 快速出貨</div>
+      <div class="trust-item">🏆 原廠公司貨</div>
+      <div class="trust-item">🏪 超商取貨付款</div>
+      <div class="trust-item">💳 多元付款</div>
+      <div class="trust-item">👥 會員專屬優惠</div>
+  <!--動畫LOOP-->
+      <div class="trust-item">🔒 SSL 安全加密</div>
+      <div class="trust-item">📦 隱密包裝</div>
+      <div class="trust-item">🚚 快速出貨</div>
+      <div class="trust-item">🏆 原廠公司貨</div>
+      <div class="trust-item">🏪 超商取貨付款</div>
+      <div class="trust-item">💳 多元付款</div>
+      <div class="trust-item">👥 會員專屬優惠</div>
+    </div>
+  </div>
+</div>
+</main>
+
   
 </body>
 </html>

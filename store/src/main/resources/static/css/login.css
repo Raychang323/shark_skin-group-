@@ -2,7 +2,7 @@
 body {
   margin: 0;
   padding: 0;
-  background: linear-gradient(to bottom right, #00bfa5, #00796b);
+  background: linear-gradient(to bottom right, #16c3da, #0b61b1);
   font-family:  'Noto Sans TC', sans-serif;
   font-size: 16px;
   color: #fff;
@@ -99,7 +99,7 @@ body {
 
 .message {
   margin-bottom: 20px;
-  color: #90ee90;
+  color: #2ff0f0;
   font-weight: bold;
 }
 

@@ -2,28 +2,28 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Your Cart</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <title>我的購物車</title>
+    <link rel="stylesheet" th:href="@{/css/cart.css}">
 </head>
 <body>
     <div class="container">
-        <h1>Your Shopping Cart</h1>
+        <h1>我的購物車</h1>
 
         <div th:if="${cart.items.empty}">
-            <p>Your cart is empty.</p>
-            <p><a href="/products">Continue Shopping</a></p>
+            <p>你的購物車是空的</p>
+            <p><a href="/products">繼續購物</a></p>
         </div>
 
         <div th:unless="${cart.items.empty}">
             <table>
                 <thead>
                     <tr>
-                        <th>Product Image</th>
-                        <th>Product</th>
-                        <th>Price</th>
-                        <th>Quantity</th>
-                        <th>Subtotal</th>
-                        <th>Actions</th>
+                        <th>商品圖片</th>
+                        <th>名稱</th>
+                        <th>價格</th>
+                        <th>數量</th>
+                        <th>小計</th>
+                        <th>操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -33,7 +33,7 @@
                                  th:src="${item.product.images[0].signedUrl}"
                                  alt="Product Image" style="width: 100px; height: 100px; object-fit: cover;"/>
                         </td>
-                        <td th:text="${item.product.name}">Product Name</td>
+                        <td th:text="${item.product.name}"> Product Name</td>
                         <td class="price" th:text="${item.product.price}">0.00</td>
                         <td>
                             <input type="number" class="quantity-input" th:value="${item.quantity}" min="1"
@@ -44,15 +44,16 @@
                         <td>
                             <form th:action="@{/cart/remove}" method="post" style="display:inline;">
                                 <input type="hidden" name="productId" th:value="${item.product.p_id}" />
-                                <button type="submit">Remove</button>
+                                <button type="submit">移除</button>
                             </form>
                         </td>
                     </tr>
                 </tbody>
             </table>
-            <h3>Total: <span id="cart-total-price" th:text="${cart.totalPrice}">0.00</span></h3>
-            <p><a href="/checkout">Proceed to Checkout</a></p>
-            <p><a href="/products">Continue Shopping</a></p>
+            <h3>總計金額: <span id="cart-total-price" th:text="${cart.totalPrice}">0.00</span></h3>
+        <div class="cart-actions">
+            <a class="action-button" href="/checkout">前往結帳</a>
+            <a class="action-button secondary" href="/products">繼續購物</a>
         </div>
     </div>
 
@@ -79,6 +80,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         };
     }
+
+
 
     async function updateCartQuantity(productId, quantityChange) {
         const formData = new FormData();

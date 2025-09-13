@@ -1,0 +1,159 @@
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(to bottom, #a2d4ec, #83c5be, #56cfe1);
+  color: #004d40;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 0;
+  overflow-y: auto;
+}
+
+
+.container {
+  max-width: 960px;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(6px);
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+
+h1 {
+  text-align: center;
+  color: #ffffff;
+  margin-bottom: 30px;
+  text-shadow: 1px 1px 2px #000;
+}
+
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+th, td {
+  padding: 12px;
+  border-bottom: 1px solid #b2ebf2;
+  text-align: center;
+}
+
+th {
+  background-color: #00acc1;
+  color: white;
+}
+
+
+img {
+  border-radius: 8px;
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+}
+
+
+input.quantity-input {
+  width: 60px;
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid #80deea;
+  text-align: center;
+}
+
+button {
+  background-color: #00acc1;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #00838f;
+}
+
+
+h3 {
+  text-align: right;
+  margin-top: 20px;
+  color: #004d40;
+}
+
+
+.empty-cart {
+  text-align: center;
+  font-size: 18px;
+  color: #004d40;
+  margin-top: 40px;
+}
+
+
+.cart-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 30px;
+}
+
+
+.action-button {
+  display: inline-block;
+  padding: 12px 24px;
+  background-color: #00acc1;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.action-button:hover {
+  background-color: #00838f;
+}
+
+
+.action-button.secondary {
+  background-color: #ffffff30;
+  color: #004d40;
+  border: 1px solid #80deea;
+}
+
+.action-button.secondary:hover {
+  background-color: #ffffff50;
+}
+
+/*手機排版*/
+@media (max-width: 600px) {
+  .container {
+    padding: 20px;
+  }
+
+  table, th, td {
+    font-size: 14px;
+  }
+
+  img {
+    width: 80px;
+    height: 80px;
+  }
+
+  .cart-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .action-button {
+    width: 100%;
+    text-align: center;
+  }
+}
