@@ -39,7 +39,17 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+		<dependency>
+		    <groupId>com.fasterxml.jackson.core</groupId>
+		    <artifactId>jackson-databind</artifactId>
+		</dependency>
+		<!-- Spring Boot DevTools (非必要，但方便開發) -->
 
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-devtools</artifactId>
+		    <scope>runtime</scope>
+		</dependency>
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>
@@ -107,6 +117,41 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
+        <!-- linepay-->
+		<dependency>
+	      <groupId>junit</groupId>
+	      <artifactId>junit</artifactId>
+	      <version>4.11</version>
+	      <scope>test</scope>
+	    </dependency>
+	     <!--jstl的標籤設定-->
+	    <!-- Jakarta JSP API -->
+	    <dependency>
+	      <groupId>jakarta.servlet.jsp</groupId>
+	      <artifactId>jakarta.servlet.jsp-api</artifactId>
+	      <version>3.1.0</version>
+	      <scope>provided</scope>
+	    </dependency>
+	    <!-- Jakarta Expression Language -->
+	    <dependency>
+	      <groupId>jakarta.el</groupId>
+	      <artifactId>jakarta.el-api</artifactId>
+	      <version>5.0.0</version>
+	      <scope>provided</scope>
+	    </dependency>
+	    <!-- Jakarta JSTL API -->
+	    <dependency>
+	      <groupId>jakarta.servlet.jsp.jstl</groupId>
+	      <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+	      <version>3.0.0</version>
+	    </dependency>
+	     <!-- Jakarta JSTL Implementation -->
+	    <dependency>
+	      <groupId>org.glassfish.web</groupId>
+	      <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+	      <version>3.0.1</version>
+	    </dependency>
+	    
     </dependencies>
 
     <build>
