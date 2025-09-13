@@ -1,0 +1,75 @@
+/* 信任標章區塊 */
+.trust-wrapper {
+  max-width: 100%;
+  padding: 40px 20px;
+  box-sizing: border-box;
+}
+
+.trust-wrapper h2 {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.trust-section {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  scroll-snap-type: x mandatory;
+}
+
+.trust-item {
+  flex: 0 0 auto;
+  scroll-snap-align: center;
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-radius: 16px;
+  padding: 20px;
+  width: 220px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.trust-item:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+.trust-icon {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.trust-label {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.tooltip {
+  font-size: 14px;
+  color: #ccc;
+}
+
+/* ✅ 手機版：自動換行成直向排列 */
+@media (max-width: 768px) {
+  .trust-section {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    overflow-x: unset;
+  }
+
+  .trust-item {
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+}
+

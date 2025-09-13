@@ -1,0 +1,384 @@
+body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background-color: #f0f8ff; /* 淺海藍色 */
+    color: #333;
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+    background-image: url('https://www.transparenttextures.com/patterns/clean-gray-paper.png'); /* 柔和的紋理背景 */
+}
+
+h1 {
+    color: #004a77; /* 深海藍色 */
+    text-align: center;
+    font-size: 2.5em;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+/* 頂部按鈕容器 */
+.top-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.top-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    color: white;
+    text-decoration: none;
+    border-radius: 25px; /* 圓潤的按鈕樣式 */
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.top-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.login-btn {
+    background-color: #4a90e2; /* 淺藍色 */
+}
+.home-btn {
+    background-color: #50e3c2; /* 翠綠色 */
+}
+
+/* ==================== 搜索容器樣式 ==================== */
+.search-container {
+    background-color: rgba(255, 255, 255, 0.9); /* 半透明白色 */
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 74, 119, 0.1); /* 深藍色陰影 */
+    margin-bottom: 30px;
+    border: 1px solid rgba(0, 74, 119, 0.1);
+}
+
+.search-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 20px;
+}
+
+.search-form > div {
+    display: flex;
+    flex-direction: column;
+}
+
+.search-form label {
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #004a77;
+}
+
+.search-form input[type="text"] {
+    padding: 10px;
+    border: 1px solid #c0e0ff; /* 淺藍色邊框 */
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+.search-form input[type="text"]:focus {
+    border-color: #4a90e2;
+    outline: none;
+}
+
+.search-btn {
+    padding: 12px 25px;
+    border: none;
+    background-color: #4a90e2;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s;
+}
+.search-btn:hover {
+    background-color: #3b74b6;
+    transform: scale(1.05);
+}
+
+/* 價格滑塊樣式 */
+.price-slider-container {
+    width: 250px;
+}
+.price-values {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #004a77;
+}
+.slider-wrapper {
+    position: relative;
+    height: 20px;
+}
+.slider-track, .slider-filler {
+    position: absolute;
+    height: 6px;
+    width: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 3px;
+}
+.slider-track {
+    background-color: #c0e0ff;
+}
+.slider-filler {
+    background-color: #4a90e2;
+    z-index: 1;
+}
+.slider-wrapper input[type="range"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 100%;
+    outline: none;
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    height: 6px;
+    background: none;
+    pointer-events: none;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+}
+.slider-wrapper input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background-color: #007bff; /* 亮藍色 */
+    border: 2px solid white;
+    border-radius: 50%;
+    cursor: pointer;
+    pointer-events: auto;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease;
+}
+.slider-wrapper input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+}
+.slider-wrapper input[type="range"]::-moz-range-thumb {
+    -moz-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background-color: #007bff;
+    border: 2px solid white;
+    border-radius: 50%;
+    cursor: pointer;
+    pointer-events: auto;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease;
+}
+
+/* ==================== 商品表格樣式 ==================== */
+.product-table {
+    border-collapse: separate; /* 使用 separate 以利圓角 */
+    border-spacing: 0;
+    width: 100%;
+    box-shadow: 0 8px 20px rgba(0, 74, 119, 0.1);
+    background-color: #fff;
+    border-radius: 15px;
+    overflow: hidden;
+}
+.product-table thead tr {
+    background-color: #e0f2f7; /* 表頭淺藍色 */
+}
+.product-table th, .product-table td {
+    border: none;
+    border-bottom: 1px solid #e0e0e0;
+    text-align: left;
+    padding: 15px;
+}
+.product-table th {
+    font-weight: bold;
+    color: #004a77;
+}
+.product-table tr:hover {
+    background-color: #f5fafd; /* 滑鼠經過時的淺藍色 */
+}
+.product-table img {
+    max-width: 200px; /* 將最大寬度調整為150px */
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+.product-table img:hover {
+    transform: scale(1.05);
+}
+
+.product-table a {
+    color: #007bff;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+.product-table a:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+.add-to-cart-btn {
+    padding: 10px 18px;
+    border: none;
+    background-color: #ffb703; /* 亮黃色，類似沙灘色 */
+    color: #333;
+    font-weight: bold;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s, transform 0.2s;
+}
+.add-to-cart-btn:hover {
+    background-color: #fb8500;
+    transform: scale(1.05);
+}
+
+/* ==================== 分頁樣式 ==================== */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+}
+.pagination a, .pagination span {
+    margin: 0 6px;
+    padding: 10px 18px;
+    border: 1px solid #4a90e2;
+    text-decoration: none;
+    color: #004a77;
+    border-radius: 20px;
+    transition: all 0.3s;
+    background-color: #f7fcff;
+}
+.pagination a:hover {
+    background-color: #4a90e2;
+    color: white;
+}
+.pagination a.disabled {
+    pointer-events: none;
+    color: #ccc;
+    background-color: #f5f5f5;
+    border-color: #eee;
+    cursor: not-allowed;
+}
+.pagination .current {
+    font-weight: bold;
+    color: white;
+    border-color: #004a77;
+    background-color: #004a77;
+}
+
+/* ==================== 迷妳購物車樣式 ==================== */
+#mini-cart-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+#mini-cart-button {
+    padding: 12px 20px;
+    border: none;
+    background-color: #e27d60; /* 珊瑚色 */
+    color: white;
+    font-weight: bold;
+    border-radius: 25px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+#mini-cart-button:hover {
+    background-color: #c96245;
+}
+
+#mini-cart-popup {
+    display: none;
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    background-color: white;
+    border: 1px solid #ddd;
+    padding: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    width: 300px;
+    border-radius: 10px;
+    animation: fadeIn 0.3s ease-out;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+#mini-cart-popup h5 {
+    color: #555;
+    font-weight: bold;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+}
+
+.mini-cart-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+.mini-cart-item:last-child {
+    border-bottom: none;
+}
+
+.mini-cart-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    margin-right: 15px;
+    border-radius: 5px;
+}
+.item-details {
+    flex-grow: 1;
+}
+.item-details span {
+    display: block;
+}
+.item-details .item-name {
+    font-weight: bold;
+    color: #333;
+}
+.item-details .item-price {
+    font-size: 14px;
+    color: #777;
+}
+.mini-cart-total-info {
+    font-size: 18px;
+    font-weight: bold;
+    text-align: right;
+    margin-top: 10px;
+}
+.mini-cart-total-info span {
+    color: #e27d60;
+}
+.btn-view-cart {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    text-align: center;
+    background-color: #4a90e2;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    margin-top: 15px;
+    transition: background-color 0.3s;
+}
+.btn-view-cart:hover {
+    background-color: #3b74b6;
+}

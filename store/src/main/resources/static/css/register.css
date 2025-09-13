@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+
+/* 整體頁面樣式 */
+body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background-color: #e0f7fa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    color: #333;
+}
+
+/* 註冊樣式 */
+.register-container {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+/* 標題樣式 */
+h2 {
+    margin-bottom: 25px;
+    color: #00796b;
+    font-weight: 700;
+}
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+/*輸入框*/
+input[type="text"], 
+input[type="password"], 
+input[type="email"] {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #b2dfdb;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+input[type="text"]:focus, 
+input[type="password"]:focus, 
+input[type="email"]:focus {
+    border-color: #00796b;
+    outline: none;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 8px;
+    background-color: #00796b;
+    color: white;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.submit-btn:hover {
+    background-color: #004d40;
+}
+
+
+.login-link {
+    display: block;
+    margin-top: 20px;
+    color: #00796b;
+    text-decoration: none;
+    font-weight: 700;
+    transition: color 0.3s;
+}
+.login-link:hover {
+    color: #004d40;
+}

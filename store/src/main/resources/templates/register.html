@@ -1,16 +1,42 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
 <title>註冊</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/register.css}">
+    <link rel="stylesheet" th:href="@{/css/bubble.css}">
 </head>
+
 <body>
+
+
+<div class="register-container">
+ <h2>註冊新帳號</h2>
 <form action="register" method="post">
-    帳號: <input type="text" name="username" required><br>
-    密碼: <input type="password" name="password" required><br>
-    Email: <input type="email" name="email" required><br>
-    <button type="submit">註冊</button>
+
+    <div class="form-group">
+    <label for="nn">帳號
+        <input type="text" id="nn" name="username" required><br>
+    </label>
+    </div>
+
+    <div class="form-group">
+    <label for="pp">密碼<input type="password" id="pp" name="password" required><br>
+    </label>
+    </div>
+
+    <div class="form-group">
+   <label for="ee">Email<input type="email" id="ee" name="email" required><br>
+    </label>
+    </div>
+    <button type="submit"class="submit-btn">註冊</button>
 </form>
-<a href="login">已有帳號？去登入</a>
+    <a href="login" class="login-link">已有帳號？去登入</a>
+</div>
+
+<div class="floating-bubble">
+    <a href="/" class="home-btn">首頁</a>
+</div>
 </body>
 </html>

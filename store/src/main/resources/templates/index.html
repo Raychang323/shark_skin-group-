@@ -1,16 +1,73 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Zen+Kaku+Gothic+New:wght@700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" th:href="@{/css/base.css}">
+
+  <link rel="stylesheet" th:href="@{/css/trust.css}">
+
+  <link rel="stylesheet" th:href="@{/css/bubble.css}">
+
     <title>我的主頁</title>
+
+
     <style>
-        body { font-family: sans-serif; }
-        h1, h2 { text-align: center; }
+        /*首頁水藍色背景*/
+.bubble-header {
+  position: relative;
+  padding: 60px 20px;
+  text-align: center;
+  background: linear-gradient(270deg, #1abc9c, #3498db, #6dd5ed);
+  background-size: 600% 600%;
+  animation: gradientBG 15s ease infinite;/*15秒顏色漸層*/
+  border-radius: 12px;
+  height: 150px;
+  margin: 40px;
+  box-shadow: inset 0 -20px 40px rgba(0,0,0,0.05);
+  overflow: hidden;
+
+}
+ /*漸層樣板*/
+  @keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.bubble-header h1 {
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #004d40;
+  margin-bottom: 8px;
+}
+
+.bubble-header h2 {
+  font-size: 20px;
+  font-weight: 400;
+  color: #006064;
+  margin-top: 0;
+  font-size: 28px / 16px;
+}
+
+
+
+/*首頁泡泡特效*/
+
+.
+
+        body {font-family: 'Noto Sans TC', sans-serif;}
+        
+        .bubble-header h1 {font-family: 'Zen Kaku Gothic New', sans-serif;}
+        .bubble-header h2 { text-align: center; }
+
         .product-carousel-container {
-            width: 50%;
-            max-width: 400px;
-            margin: 0 auto;
-            position: relative; /* Needed for positioning arrows */
-            border-radius: 8px;
+          width: 50%;
+          max-width: 400px;
+          margin: 0 auto;
+          position: relative;
+          border-radius: 8px;
         }
         .carousel-inner-container {
             overflow: hidden;
@@ -27,6 +84,7 @@
             box-sizing: border-box;
             padding: 20px;
             text-align: center;
+    
         }
         .product-item img {
             max-width: 100%;
@@ -106,11 +164,143 @@
             background-color: #0056b3;
             transform: translateY(-2px);
         }
+
+
+        /*小鯊魚icon*/
+        .shark-icon {
+          height: 32px;
+          vertical-align: middle;
+          margin-right: 8px;
+          transition: transform 0.3s ease;
+        }
+        .shark-icon:hover {
+          transform: scale(1.1) rotate(-5deg);
+        }
+        /*彈跳小鯊魚*/
+        .popup-icon {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 12px;
+            animation: rgbShift 4s linear infinite;
+            filter: drop-shadow(0 0 6px rgba(0,0,0,0.3));/*邊緣黑框*/
+            animation: shake 0.6s infinite;/*晃動*/
+        }
+        @keyframes floatUp {
+            0% {
+                opacity: 0;
+                transform: translateY(20px) scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        /*RGB特效*/
+        @keyframes rgbShift {
+            0%   { filter: drop-shadow(0 0 6px rgb(255,0,0)); }
+            33%  { filter: drop-shadow(0 0 6px rgb(0,255,0)); }
+            66%  { filter: drop-shadow(0 0 6px rgb(0,0,255)); }
+            100% { filter: drop-shadow(0 0 6px rgb(255,0,0)); }
+        }
+        /*抽搐*/
+        @keyframes shake {
+        0% { transform: translate(0, 0); }
+        25% { transform: translate(2px, -2px); }
+        50% { transform: translate(-2px, 2px); }
+        75% { transform: translate(2px, 2px); }
+        100% { transform: translate(0, 0); }
+        }       
+
+        /*彈跳視窗*/
+        .popup-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .popup-box {
+            background: linear-gradient(135deg, #ff8a65, #ff7043);
+            color: white;
+            padding: 32px;
+            border-radius: 14px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 320px;
+            position: relative;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes popupZoomIn {
+            0% {
+            opacity: 0;
+            transform: scale(0.7);
+            }
+            100% {
+            opacity: 1;
+            transform: scale(1);
+            }
+            }
+
+        .popup-box {
+            animation: popupZoomIn 0.4s ease-out;
+            }
+
+            
+        @media screen and (min-width: 768px) {
+        .popup-box {
+            margin: 0 auto;
+            }
+            }
+
+
+        .popup-close {
+            position: absolute;
+            top: 10px; right: 14px;
+            font-size: 24px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .countdown {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 12px 0 20px;
+            background: rgba(0,0,0,0.2);
+            padding: 6px 12px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+
+        body.modal-open {
+            overflow: hidden;
+        }
+
+
+        
     </style>
 </head>
+
+
 <body>
-    <h1>鯊魚快閃商店</h1>
-    <h2>精選浪潮，限時呈現</h2>
+
+
+            <!--首頁標題-->
+            <div class="bubble-header" style="user-select: none;">
+            <div class="bubbles"></div>
+            <h1>
+            <img src="/images/shark-svgrepo-com.svg" class="shark-icon">
+                鯊魚快閃商店
+            <img src="/images/shark-svgrepo-com.svg" class="shark-icon">
+            </h1>
+              <h2>精選浪潮，限時呈現</h2>
+            </div>
+
+
+
 
     <div class="product-carousel-container" id="carousel-container">
         <div class="carousel-arrow arrow-left" id="arrow-left"></div>
@@ -127,93 +317,241 @@
         </div>
     </div>
 
+
+
+
+
+
     <div class="view-all-container">
         <a href="/products" class="view-all-button">查看所有商品 &rarr;</a>
         <a href="/order-lookup" class="view-all-button" style="background-color: #6c757d; margin-left: 10px;">查詢訂單</a>
     </div>
 
+
+
+
+
+
+<!--滑動效果測試正常-->
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const carousel = document.getElementById('product-carousel');
-            const arrowLeft = document.getElementById('arrow-left');
-            const arrowRight = document.getElementById('arrow-right');
-            const items = carousel.querySelectorAll('.product-item');
+document.addEventListener('DOMContentLoaded', () => {
+    // --- Carousel Setup ---
+    const carousel = document.getElementById('product-carousel');
+    const arrowLeft = document.getElementById('arrow-left');
+    const arrowRight = document.getElementById('arrow-right');
+    const items = carousel.querySelectorAll('.product-item');
 
-            if (items.length <= 1) return; // Don't initialize if not enough items
 
-            const totalItems = items.length;
-            let currentIndex = 0;
-            let autoSlideInterval;
+    
+    /*確認商品數量測試*/
+    console.log('商品數量：', items.length);
 
-            // --- Setup for Seamless Loop ---
-            const firstClone = items[0].cloneNode(true);
-            const lastClone = items[totalItems - 1].cloneNode(true);
-            carousel.appendChild(firstClone);
-            carousel.insertBefore(lastClone, items[0]);
 
-            // --- Functions ---
-            function updateSlide(instant = false) {
-                if (instant) {
-                    carousel.style.transition = 'none';
-                } else {
-                    carousel.style.transition = 'transform 0.5s ease-in-out';
-                }
-                const offset = -(currentIndex + 1) * items[0].offsetWidth;
-                carousel.style.transform = `translateX(${offset}px)`;
+    if (items.length <= 1) return;
+
+    const totalItems = items.length;
+    let currentIndex = 0;
+    let autoSlideInterval;
+
+
+//如果 items.length 商品列 是 0 或 1，這段會失效，滑動邏輯無法啟動
+    const firstClone = items[0].cloneNode(true);
+    const lastClone = items[totalItems - 1].cloneNode(true);
+    carousel.appendChild(firstClone);
+    carousel.insertBefore(lastClone, items[0]);
+
+
+    function updateSlide(instant = false) {
+        carousel.style.transition = instant ? 'none' : 'transform 0.5s ease-in-out';
+        const offset = -(currentIndex + 1) * items[0].offsetWidth;
+        carousel.style.transform = `translateX(${offset}px)`;
+    }
+
+    function slideNext() {
+        if (currentIndex >= totalItems) return;
+        currentIndex++;
+        updateSlide();
+        carousel.addEventListener('transitionend', () => {
+            if (currentIndex >= totalItems) {
+                currentIndex = 0;
+                updateSlide(true);
             }
+        }, { once: true });
+    }
 
-            function slideNext() {
-                if (currentIndex >= totalItems) return; // Prevent fast clicking issues
-                currentIndex++;
-                updateSlide();
-
-                carousel.addEventListener('transitionend', () => {
-                    if (currentIndex >= totalItems) {
-                        currentIndex = 0;
-                        updateSlide(true);
-                    }
-                }, { once: true });
+    function slidePrev() {
+        if (currentIndex < 0) return;
+        currentIndex--;
+        updateSlide();
+        carousel.addEventListener('transitionend', () => {
+            if (currentIndex < 0) {
+                currentIndex = totalItems - 1;
+                updateSlide(true);
             }
+        }, { once: true });
+    }
 
-            function slidePrev() {
-                if (currentIndex < 0) return; // Prevent fast clicking issues
-                currentIndex--;
-                updateSlide();
-                
-                carousel.addEventListener('transitionend', () => {
-                    if (currentIndex < 0) {
-                        currentIndex = totalItems - 1;
-                        updateSlide(true);
-                    }
-                }, { once: true });
-            }
-            
-            function startAutoSlide() {
-                stopAutoSlide();
-                autoSlideInterval = setInterval(slideNext, 5000); // Slide every 5 seconds
-            }
+    function startAutoSlide() {
+        stopAutoSlide();
+        autoSlideInterval = setInterval(slideNext, 5000);
+    }
 
-            function stopAutoSlide() {
-                clearInterval(autoSlideInterval);
-            }
+    function stopAutoSlide() {
+        clearInterval(autoSlideInterval);
+    }
 
-            // --- Initial State ---
-            updateSlide(true); // Set initial position without animation
+    updateSlide(true);
+    arrowRight.addEventListener('click', () => {
+        slideNext();
+        startAutoSlide();
+    });
+    arrowLeft.addEventListener('click', () => {
+        slidePrev();
+        startAutoSlide();
+    });
+    startAutoSlide();
+});
 
-            // --- Event Listeners ---
-            arrowRight.addEventListener('click', () => {
-                slideNext();
-                startAutoSlide(); // Reset interval
-            });
 
-            arrowLeft.addEventListener('click', () => {
-                slidePrev();
-                startAutoSlide(); // Reset interval
-            });
 
-            // Start the show
-            startAutoSlide();
-        });
+/*彈跳視窗特效*/
+document.addEventListener('DOMContentLoaded', () => {
+  const popup = document.getElementById('popup-overlay');
+  const closeBtn = document.getElementById('popup-close');
+  const countdownEl = document.getElementById('countdown');
+
+  const now = new Date();
+  const endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 0);
+
+  if (!localStorage.getItem('popupStartTime')) {
+    localStorage.setItem('popupStartTime', now.getTime());
+  }
+
+  // 顯示彈跳視窗並鎖住背景
+  setTimeout(() => {
+    popup.style.display = 'flex';
+    document.body.classList.add('modal-open');
+  }, 2000);
+
+  // 關閉彈跳視窗並解除鎖定
+  closeBtn.addEventListener('click', () => {
+    popup.style.display = 'none';
+    document.body.classList.remove('modal-open');
+  });
+
+  // 倒數計時
+  function updateCountdown() {
+    const now = new Date();
+    const diff = endTime - now;
+
+    if (diff <= 0) {
+      countdownEl.textContent = '活動已結束';
+      return;
+    }
+
+    const hours = String(Math.floor(diff / (1000 * 60 * 60))).padStart(2, '0');
+    const minutes = String(Math.floor((diff / (1000 * 60)) % 60)).padStart(2, '0');
+    const seconds = String(Math.floor((diff / 1000) % 60)).padStart(2, '0');
+
+    countdownEl.textContent = `剩下 ${hours}:${minutes}:${seconds}`;
+  }
+
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+});
+
+
+
+
+//首頁泡泡特效
+document.addEventListener("DOMContentLoaded", () => {
+    const bubbles = document.querySelector(".bubbles");
+    for (let i = 0; i < 20; i++) {
+      const bubble = document.createElement("span");
+      let size = Math.random() * 20 + 10;
+      bubble.style.width = `${size}px`;
+      bubble.style.height = `${size}px`;
+      bubble.style.left = `${Math.random() * 100}%`;
+      bubble.style.animationDuration = `${8 + Math.random() * 4}s`;
+      bubble.style.animationDelay = `${Math.random() * 5}s`;
+      bubbles.appendChild(bubble);
+    }
+  });
+
+
+console.log('特效測試');
+
+
+
+
     </script>
+
+
+<div class="popup-overlay" id="popup-overlay" style="user-select: none;">
+  <div class="popup-box">
+    <span class="popup-close" id="popup-close">&times;</span>
+    <h3><img src="/images/shark-popup.svg" alt="Shark Icon" class="popup-icon">
+         今日全館限時折扣
+        </h3>
+    <p class="popup-desc">全館商品 88 折，限時至今晚 23:59！</p>
+    <div class="countdown" id="countdown">剩下 00:00:00</div>
+  </div>
+</div>
+
+<!--登入註冊泡泡-->
+<div class="floating-bubble">
+    <a href="/register" class="bubble-btn register-btn">註冊</a>
+    <a href="/login" class="bubble-btn login-btn">登入</a>
+</div>
+
+
+
+  <!---信任標誌區--->
+
+<main>
+    <div class="trust-wrapper">
+      <h2>我們的保障</h2>
+      <div class="trust-section">
+        <div class="trust-item">
+          <div class="trust-icon">🔒</div>
+          <div class="trust-label">SSL 安全加密</div>
+          <div class="tooltip">訂購單已加密處理，交易更安心</div>
+        </div>
+        <div class="trust-item">
+          <div class="trust-icon">📦</div>
+          <div class="trust-label">隱密包裝</div>
+          <div class="tooltip">不顯示商品資訊，保護隱私</div>
+        </div>
+        <div class="trust-item">
+          <div class="trust-icon">🚚</div>
+          <div class="trust-label">快速出貨</div>
+          <div class="tooltip">下單後48小時出貨，隨時快寄寄出</div>
+        </div>
+        <div class="trust-item">
+          <div class="trust-icon">🏆</div>
+          <div class="trust-label">原廠公司貨</div>
+          <div class="tooltip">官方授權，品質有保障</div>
+        </div>
+        <div class="trust-item">
+          <div class="trust-icon">🏪</div>
+          <div class="trust-label">超商取貨付款</div>
+        </div>
+        <div class="trust-item">
+          <div class="trust-icon">💳</div>
+          <div class="trust-label">多元付款</div>
+          <div class="tooltip">只有LINE Pay</div>
+        </div>
+        <div class="trust-item">
+          <div class="trust-icon">👥</div>
+          <div class="trust-label">會員專屬優惠</div>
+          <div class="tooltip">登入專屬帳號，多重好禮</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2025 經營良好的店鋪 SharkSkin Store</p>
+  
 </body>
 </html>

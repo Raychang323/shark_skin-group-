@@ -1,46 +1,55 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+    
 <head>
+    <link rel="stylesheet" th:href="@{/css/product_Detail.css}">
+    <link rel="stylesheet" th:href="@{/css/bubble.css}">
+
+
     <title>商品詳細資料</title>
     <meta charset="UTF-8">
 </head>
 <body>
 
+
 <h1>商品詳細資料</h1>
 
-<div th:if="${product}">
+<div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+<div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+<div th:if="${product}" class="product-wrapper">
     <!-- Image Gallery -->
-    <div class="image-gallery" th:if="${product.images != null and !product.images.empty}">
-        <div th:each="image : ${product.images}">
+    <div class="product-image">
+        <div th:if="${product.images != null and !product.images.empty}">
+            <div th:each="image : ${product.images}">
             <img th:src="${image.signedUrl}" alt="商品圖片" width="300">
+            </div>
+        </div>
+    <!-- Placeholder for products with no images -->
+        <div th:if="${product.images == null or product.images.empty}">
+        <img src="https://via.placeholder.com/300x300?text=No+Image" alt="無圖片" width="300">
         </div>
     </div>
 
-    <!-- Placeholder for products with no images -->
-    <div th:if="${product.images == null or product.images.empty}">
-        <img src="https://via.placeholder.com/300x300?text=No+Image" alt="無圖片" width="300">
-    </div>
-    <h2 th:text="${product.name}">商品名稱</h2>
-    <p>價格: <span th:text="${product.price}"></span></p>
-    <p>庫存: <span th:text="${product.stock}"></span></p>
+    <div class="product-info">
+        <h2 th:text="${product.name}">商品名稱</h2>
+        <p>價格: <span th:text="${product.price}"></span></p>
+        <p>庫存: <span th:text="${product.stock}"></span></p>
 
-    <form class="add-to-cart-form" th:if="${product.stock > 0}">
+    <form class="add-to-cart-form" th:if="${product.stock > 0}" method="post" th:action="@{/cart/add}">
         <input type="hidden" name="productId" th:value="${product.p_id}" />
         <input type="number" name="quantity" value="1" min="1" max="99" style="width: 60px;" />
         <button type="submit">新增至購物車</button>
     </form>
-    <button th:if="${product.stock == 0}" disabled style="background-color: grey; color: white;">庫存不足</button>
+    <button th:if="${product.stock == 0}" class="out-of-stock" disabled >庫存不足</button>
+    </div>
 </div>
 
 <div th:if="${product == null}">
     <p>找不到商品</p>
 </div>
 
-</div>
 
-<div th:if="${product == null}">
-    <p>找不到商品</p>
-</div>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -130,6 +139,13 @@
         });
     });
 </script>
+<div class="floating-bubble cart-btn-bubble">
+  <a href="/products" class="home-btn">商品列表</a>
+</div>
 
+
+<div class="floating-bubble">
+    <a href="/" class="home-btn">首頁</a>
+</div>
 </body>
 </html>

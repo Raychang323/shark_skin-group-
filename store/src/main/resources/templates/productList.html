@@ -3,130 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <title>商品列表</title>
-     <style>
-        body { font-family: sans-serif; }
-        .search-container { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9; display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
-        .search-container > div { display: flex; flex-direction: column; }
-        .search-container label { margin-bottom: 5px; font-weight: bold; }
-        .search-container input[type="text"] { padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
-        .search-container button { padding: 8px 15px; border: none; background-color: #007bff; color: white; border-radius: 4px; cursor: pointer; align-self: flex-end; }
-        
-        /* Price Range Slider Styles */
-        .price-slider-container { width: 300px; margin-top: 10px; }
-        .price-values { display: flex; justify-content: space-between; margin-bottom: 10px; }
-        .slider-wrapper { position: relative; height: 20px; }
-        .slider-track, .slider-filler { position: absolute; height: 5px; width: 100%; top: 50%; transform: translateY(-50%); border-radius: 5px; }
-        .slider-track { background-color: #ddd; }
-        .slider-filler { background-color: #007bff; z-index: 1; }
-
-        .slider-wrapper input[type="range"] {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            width: 100%;
-            outline: none;
-            position: absolute;
-            margin: 0;
-            padding: 0;
-            height: 5px;
-            background: none;
-            pointer-events: none;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 2;
-        }
-        .slider-wrapper input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            background-color: #007bff;
-            border-radius: 50%;
-            cursor: pointer;
-            pointer-events: auto;
-        }
-        .slider-wrapper input[type="range"]::-moz-range-thumb {
-            -moz-appearance: none;
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            background-color: #007bff;
-            border-radius: 50%;
-            cursor: pointer;
-            pointer-events: auto;
-        }
-
-        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
-        th, td { border: 1px solid #dddddd; text-align: left; padding: 8px; }
-        th { background-color: #f2f2f2; }
-        img { max-width: 100px; max-height: 100px; }
-        .pagination { display: flex; align-items: center; justify-content: center; }
-        .pagination a, .pagination span { margin: 0 5px; padding: 5px 10px; border: 1px solid #ccc; text-decoration: none; color: #333; }
-        .pagination a.disabled { pointer-events: none; color: #ccc; background-color: #f5f5f5; }
-        .pagination .current { font-weight: bold; color: #000; border: none; }
-
-        /* Mini-cart styles */
-        #mini-cart-container { 
-            position: fixed; 
-            top: 20px; 
-            right: 20px; 
-            z-index: 1000; 
-        }
-        #mini-cart-popup {
-            background-color: white;
-            border: 1px solid #ddd;
-            padding: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            width: 300px;
-        }
-        #mini-cart-items .list-group-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 5px 0;
-        }
-        #mini-cart-items .list-group-item span {
-            flex-grow: 1;
-        }
-        #mini-cart-items .list-group-item .quantity {
-            margin-left: 10px;
-            font-weight: bold;
-        }
-        .mini-cart-image {
-            width: 50px;
-            height: 50px;
-            object-fit: cover; /* This crops the image to fit the square dimensions */
-            margin-right: 10px;
-        }
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/product_list.css}">
+     
     </style>
 </head>
 <body>
-    <div id="mini-cart-container" style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
+
+    <div id="mini-cart-container">
         <button id="mini-cart-button" class="btn btn-info">
             購物車 (<span id="cart-item-count">0</span>)
         </button>
-        <div id="mini-cart-popup" style="display: none; position: absolute; right: 0; background-color: white; border: 1px solid #ddd; padding: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 300px;">
+
+        <div id="mini-cart-popup">
             <h5>購物車內容</h5>
             <ul id="mini-cart-items" class="list-group mb-2">
                 <!-- Cart items will be loaded here by JavaScript -->
             </ul>
-            <p>總計: $<span id="mini-cart-total">0.00</span></p>
-            <a href="/cart" class="btn btn-primary btn-block">查看完整購物車</a>
+            <p class="mini-cart-total-info">總計: $
+                <span id="mini-cart-total">0.00</span>
+            </p>
+            <a href="/cart" class="btn-view-cart">查看完整購物車</a>
         </div>
     </div>
+    
     <h1>商品列表</h1>
 
-    <div style="margin-bottom: 20px;">
-        <a href="/login" style="display: inline-block; padding: 10px 15px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">登入</a>
-        <a href="/" style="display: inline-block; padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">回到首頁</a>
+    <div class="top-buttons">
+        <a href="/login" class="top-btn login-btn">登入</a>
+        <a href="/" class="top-btn home-btn">回到首頁</a>
     </div>
+
+   
 
     <!-- Search Form -->
     <div class="search-container">
-        <form th:action="@{/products}" method="get" style="display: flex; gap: 20px; align-items: flex-end; width: 100%;">
+        <form th:action="@{/products}" method="get" class="search-form">
             <div>
-                <label for="name">商品名稱:</label>
-                <input type="text" id="name" name="name" th:value="${name}" placeholder="輸入關鍵字...">
+                <label for="name-search">商品名稱:</label>
+                <input type="text" id="name-search" name="name" th:value="${name}" placeholder="輸入關鍵字...">
             </div>
             
             <div class="price-slider-container">
@@ -135,6 +52,9 @@
                     <span id="min-val" th:text="${minPrice != null ? minPrice : 0}">0</span>
                     <span id="max-val" th:text="${maxPrice != null ? maxPrice : 3000}">3000</span>
                 </div>
+
+               
+
                 <div class="slider-wrapper">
                     <div class="slider-track"></div>
                     <div class="slider-filler"></div>
@@ -142,13 +62,13 @@
                     <input type="range" name="maxPrice" id="slider-2" min="0" max="3000" th:value="${maxPrice != null ? maxPrice : 3000}">
                 </div>
             </div>
-
-            <button type="submit">搜尋</button>
+                <button type="submit" class="search-btn">搜尋</button>
         </form>
     </div>
 
-    <table>
+    <table class="product-table">
         <!-- Table headers -->
+         
         <thead>
             <tr>
                 <th>商品圖片</th>
@@ -186,7 +106,7 @@
                     <form class="add-to-cart-form">
                         <input type="hidden" name="productId" th:value="${product.p_id}" />
                         <input type="hidden" name="quantity" value="1" />
-                        <button type="submit" class="btn btn-primary btn-sm">加入購物車</button>
+                        <button type="submit" class="add-to-cart-btn">加入購物車</button>
                     </form>
                 </td>
             </tr>
