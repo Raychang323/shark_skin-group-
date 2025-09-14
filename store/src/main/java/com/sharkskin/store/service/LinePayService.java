@@ -16,7 +16,6 @@ import java.util.UUID;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -24,7 +23,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,9 +31,8 @@ import com.sharkskin.store.linepay.LinepayResponse;
 import com.sharkskin.store.model.Order;
 import com.sharkskin.store.model.OrderItem;
 
-@Service
 public class LinePayService {
-	@Autowired
+	
     private JavaMailSender mailsend;
 	
     // ==========================
@@ -126,7 +123,6 @@ public class LinePayService {
             System.out.println("tURL"+ url); //T
 
 
-
             
             
             
@@ -159,58 +155,6 @@ public class LinePayService {
             return parsePaymentUrl(response.toString());
     }
         
-
-//        /**
-//         * 建立 Line Pay 請求 JSON
-//         */
-//        private String buildRequestJson(Order order ) {
-//            StringBuilder json = new StringBuilder();
-//
-//            json.append("{");
-//            json.append("\"amount\":").append(order.getTotalPrice()).append(",");
-//            json.append("\"currency\":\"").append(LinePayConfig.CURRENCY).append("\",");
-//            json.append("\"orderId\":\"").append(order.getOrderNumber()).append("\",");
-//
-//            // 商品包裹
-//            json.append("\"packages\":[{");
-//            json.append("\"id\":\"").append(order.getOrderNumber()).append("\",");
-//            json.append("\"amount\":").append(order.getTotalPrice()).append(",");
-//            json.append("\"name\":\"").append(LinePayConfig.MERCHANT_NAME).append("\",");
-//            json.append("\"products\":[");
-//
-//            // 商品清單
-//            for (int i = 0; i < cartItems.size(); i++) {
-//                CartItem item = cartItems.get(i);
-//                if (i > 0) json.append(",");
-//
-//                json.append("{");
-//                json.append("\"id\":\"").append(item.getProductId()).append("\",");
-//                json.append("\"name\":\"").append(escapeJson(item.getProductName())).append("\",");
-//                json.append("\"quantity\":").append(item.getQuantity()).append(",");
-//                json.append("\"price\":").append((int)item.getPrice());
-//                json.append("}");
-//            }
-//
-//            json.append("]}],");
-//
-//            // 重新導向網址
-//            json.append("\"redirectUrls\":{");
-//            json.append("\"confirmUrl\":\"").append(LinePayConfig.CONFIRM_URL).append("\",");
-//            json.append("\"cancelUrl\":\"").append(LinePayConfig.CANCEL_URL).append("\"");
-//            json.append("},");
-//
-//            // 自動確認設定
-//            json.append("\"options\":{");
-//            json.append("\"payment\":{");
-//            json.append("\"capture\":true");  // 自動確認付款
-//            json.append("}");
-//            json.append("}");
-//
-//            json.append("}");
-//
-//            return json.toString();
-//        }
-
          /* 產生 HMAC 簽章
          */
         private String generateSignature(String uri, String requestBody, String nonce) throws Exception {
@@ -236,7 +180,7 @@ public class LinePayService {
                 int endIndex = responseJson.indexOf("\"", startIndex);
 
                 if (startIndex > 6 && endIndex > startIndex) {
-                    return responseJson.substring(startIndex, endIndex).replace("\\", "");
+                    return responseJson.substring(startIndex, endIndex).replace("\\\\", "");
                 }
             }
 
@@ -257,26 +201,34 @@ public class LinePayService {
 
         }
         public LinepayResponse confirmPayment(String transactionId, double amount) throws Exception {
-        	
-        	String url = LinePayConfig.API_BASE_URL + LinePayConfig.REQUEST_API;
+        	// 1️⃣ 建立請求 URL
+        	String confirmApi = String.format("/v3/payments/%s/confirm", transactionId);
+        	String url = LinePayConfig.API_BASE_URL + confirmApi;
+
+            // 2️⃣ 建立 request body
             Map<String, Object> body = new HashMap<>();
             body.put("amount", (int) amount);
             body.put("currency", LinePayConfig.CURRENCY);
-            
-            String nonce = UUID.randomUUID().toString();
-            String bodyJson = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(body);
-            String message = channelId + bodyJson + nonce;
-            String signature = generateSignature(LinePayConfig.REQUEST_API, bodyJson, nonce);
 
+            // 3️⃣ 轉成 JSON 字串（緊湊格式）
+            ObjectMapper mapper = new ObjectMapper();
+            String bodyJson = mapper.writeValueAsString(body);
+
+            // 4️⃣ 計算 HMAC-SHA256 簽章
+            String nonce = UUID.randomUUID().toString();
+            String signature = generateSignature(confirmApi, bodyJson, nonce);
+
+            // 5️⃣ 設定 headers
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("X-LINE-ChannelId", channelId);
+            headers.set("X-LINE-ChannelId", LinePayConfig.CHANNEL_ID);
             headers.set("X-LINE-Authorization-Nonce", nonce);
             headers.set("X-LINE-Authorization", signature);
 
             HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
 
-            ResponseEntity<LinepayResponse> responseEntity =
+            // 6️⃣ 發送請求
+            ResponseEntity<LinepayResponse> responseEntity = 
                     restTemplate.exchange(url, HttpMethod.POST, requestEntity, LinepayResponse.class);
 
             return responseEntity.getBody();
@@ -288,4 +240,4 @@ public class LinePayService {
                 message.setText("您好，感謝您使用SharkShop，下面是你的訂單連結:/n http://localhost:8080/lookup-order?orderNumber="+order.getOrderNumber()+"&email="+order.getEmail()); //設置信箱內容
                 mailsend.send(message); //發送郵件
              }
-}	
+}

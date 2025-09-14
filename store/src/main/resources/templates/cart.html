@@ -51,9 +51,7 @@
                 </tbody>
             </table>
             <h3>總計金額: <span id="cart-total-price" th:text="${cart.totalPrice}">0.00</span></h3>
-            <form id="cart-form" action="/linepay/create-order" method="post">
-			  <button type="submit">付款</button>
-			</form>
+            
 	        <div class="cart-actions">
 	            <a class="action-button" href="/checkout">前往結帳</a>
 	            <a class="action-button secondary" href="/products">繼續購物</a>

@@ -1,6 +1,7 @@
 package com.sharkskin.store.config;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -8,6 +9,8 @@ import org.springframework.stereotype.Component;
 
 import com.sharkskin.store.model.Order;
 import com.sharkskin.store.model.OrderItem;
+import com.sharkskin.store.model.OrderStatus;
+import com.sharkskin.store.model.PaymentMethod;
 import com.sharkskin.store.model.Product;
 import com.sharkskin.store.model.ProductImage;
 import com.sharkskin.store.model.UserModel;
@@ -29,6 +32,12 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        // IMPORTANT: If you encounter "No enum constant ... 已付款" error on startup,
+        // it means your database has old 'status' values that are not valid OrderStatus enum constants.
+        // You need to manually update your database. For example, in SQL:
+        // UPDATE orders SET status = 'APPROVED' WHERE status = '已付款';
+        // Or, if you have other old string statuses, map them to appropriate enum values.
+
         // === Create Users ===
         UserModel user1 = createUserIfNotFound("test1", "1234", "testuser1@example.com", "USER");
         createUserIfNotFound("test2", "1234", "testuser2@example.com", "USER");
@@ -48,7 +57,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // === Create an Order for testuser1 if they have no orders ===
         if (user1 != null && orderRepository.findByEmail(user1.getEmail()).isEmpty()) {
-            Order order1 = new Order("ORD001", user1.getEmail(), "處理中", 0);
+            Order order1 = new Order("ORD001", user1.getEmail(), OrderStatus.PROCESSING, PaymentMethod.CASH_ON_DELIVERY, 0);
 
             OrderItem item1 = new OrderItem(p1, 1);
             OrderItem item2 = new OrderItem(p2, 2);
@@ -76,7 +85,7 @@ public class DataInitializer implements CommandLineRunner {
             System.out.println("Created test user: " + username + " with role: " + role);
             return userRepository.save(user);
         }
-        return userRepository.findByUsername(username);
+        return userRepository.findByUsername(username).get();
     }
 
     private Product createProductIfNotFound(String id, String name, int price, int stock, java.util.List<String> imageUrls) {

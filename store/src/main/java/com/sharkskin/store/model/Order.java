@@ -14,8 +14,18 @@ public class Order {
 
     private String orderNumber;
     private String email; // To link with the user
-    private String status;
+
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
+
+    @Enumerated(EnumType.STRING)
+    private PaymentMethod paymentMethod;
+
     private double totalPrice;
+
+    @ManyToOne(fetch = FetchType.LAZY) // Add this annotation
+    @JoinColumn(name = "user_id") // This will create a user_id column in the orders table
+    private UserModel user; // Add this field
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
@@ -23,10 +33,11 @@ public class Order {
     // JPA requires a no-arg constructor
     public Order() {}
 
-    public Order(String orderNumber, String email, String status, double totalPrice) {
+    public Order(String orderNumber, String email, OrderStatus status, PaymentMethod paymentMethod, double totalPrice) {
         this.orderNumber = orderNumber;
         this.email = email;
         this.status = status;
+        this.paymentMethod = paymentMethod;
         this.totalPrice = totalPrice;
     }
 
@@ -55,12 +66,20 @@ public class Order {
         this.email = email;
     }
 
-    public String getStatus() {
+    public OrderStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(OrderStatus status) {
         this.status = status;
+    }
+
+    public PaymentMethod getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
+        this.paymentMethod = paymentMethod;
     }
 
     public double getTotalPrice() {
@@ -69,6 +88,14 @@ public class Order {
 
     public void setTotalPrice(double totalPrice) {
         this.totalPrice = totalPrice;
+    }
+
+    public UserModel getUser() { // Add this getter
+        return user;
+    }
+
+    public void setUser(UserModel user) { // Add this setter
+        this.user = user;
     }
 
     public List<OrderItem> getItems() {

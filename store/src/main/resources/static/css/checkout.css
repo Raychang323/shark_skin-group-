@@ -1,0 +1,55 @@
+/* Basic styling for checkout page */
+.container {
+    max-width: 800px;
+    margin-top: 30px;
+}
+
+h2 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+.list-group-item {
+    font-size: 0.95em;
+}
+
+.card-footer strong {
+    font-size: 1.1em;
+    color: #007bff;
+}
+
+.payment-method-selection label {
+    display: block;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.payment-method-selection input[type="radio"] {
+    margin-right: 10px;
+}
+
+.confirm-button {
+    margin-top: 20px;
+    width: 100%;
+    padding: 10px;
+    font-size: 1.1em;
+}
+
+.back-to-cart {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.back-to-cart a {
+    color: #6c757d;
+    text-decoration: none;
+}
+
+.back-to-cart a:hover {
+    text-decoration: underline;
+}

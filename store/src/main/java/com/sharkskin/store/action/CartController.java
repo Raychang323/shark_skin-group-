@@ -1,6 +1,8 @@
 package com.sharkskin.store.action;
 
 import com.sharkskin.store.dto.CartSummaryDto; // Add this import
+import com.sharkskin.store.model.PaymentMethod;
+import com.sharkskin.store.model.OrderStatus;
 import com.sharkskin.store.service.CartService;
 import com.sharkskin.store.model.Cart;
 import com.sharkskin.store.service.GcsImageUploadService;
@@ -114,5 +116,49 @@ public class CartController {
     @ResponseBody // This annotation makes Spring return data directly, not a view name
     public CartSummaryDto getCartSummary(HttpSession session) { // Changed return type
         return cartService.getCartSummaryDto(session); // Call the new DTO method
+    }
+
+    @GetMapping("/checkout")
+    public String checkout(HttpSession session, Model model) {
+        String username = (String) session.getAttribute("username");
+        if (username == null) {
+            return "redirect:/login";
+        }
+        Cart cart = cartService.getCart(session);
+        model.addAttribute("cart", cart);
+        return "checkout";
+    }
+
+    @PostMapping("/checkout/confirm")
+    public String confirmCheckout(@RequestParam("paymentMethod") PaymentMethod paymentMethod, HttpSession session) {
+        String username = (String) session.getAttribute("username");
+        if (username == null) {
+            return "redirect:/login";
+        }
+
+        Cart cart = cartService.getCart(session);
+        if (cart == null || cart.getItems().isEmpty()) {
+            // Handle empty cart scenario, redirect to cart page with an error or message
+            return "redirect:/cart?error=emptyCart";
+        }
+
+        if (paymentMethod == PaymentMethod.LINE_PAY) {
+            // Redirect to Line Pay initiation
+            // The LinePayController will handle the actual Line Pay API call and redirection
+            return "redirect:/linepay/pay";
+        } else if (paymentMethod == PaymentMethod.CASH_ON_DELIVERY) {
+            // Process Cash on Delivery order
+            // This will involve creating an order in the database with status PROCESSING
+            // and then redirecting to a success page.
+            try {
+                cartService.createOrderFromCart(session, paymentMethod, OrderStatus.PROCESSING);
+                session.removeAttribute("cart"); // Clear the cart after order creation
+                return "redirect:/payment_success"; // Redirect to the success page
+            } catch (Exception e) {
+                // Handle order creation failure
+                return "redirect:/cart?error=orderFailed";
+            }
+        }
+        return "redirect:/checkout?error=invalidPaymentMethod";
     }
 }

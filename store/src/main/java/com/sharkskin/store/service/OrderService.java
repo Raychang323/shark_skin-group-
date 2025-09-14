@@ -1,12 +1,18 @@
 package com.sharkskin.store.service;
 
+import com.sharkskin.store.model.Cart;
 import com.sharkskin.store.model.Order;
+import com.sharkskin.store.model.OrderItem;
+import com.sharkskin.store.model.OrderStatus;
+import com.sharkskin.store.model.PaymentMethod;
+import com.sharkskin.store.model.UserModel;
 import com.sharkskin.store.repositories.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
@@ -41,5 +47,38 @@ public class OrderService {
 
     public void saveOrder(Order order) {
         orderRepository.save(order);
+    }
+
+    public Order createOrder(Cart cart, UserModel user, PaymentMethod paymentMethod) {
+        Order order = new Order();
+        order.setOrderNumber(generateOrderNumber());
+        order.setEmail(user.getEmail());
+        order.setTotalPrice(cart.getTotalPrice());
+        order.setPaymentMethod(paymentMethod);
+
+        if (paymentMethod == PaymentMethod.CASH_ON_DELIVERY) {
+            order.setStatus(OrderStatus.PROCESSING);
+        } else {
+            order.setStatus(OrderStatus.PENDING_PAYMENT); // Or some other initial status for online payments
+        }
+
+        List<OrderItem> orderItems = cart.getItems().stream()
+                .map(cartItem -> {
+                    OrderItem orderItem = new OrderItem();
+                    orderItem.setProduct(cartItem.getProduct());
+                    orderItem.setQuantity(cartItem.getQuantity());
+                    orderItem.setOrder(order);
+                    return orderItem;
+                })
+                .collect(Collectors.toList());
+
+        order.setItems(orderItems);
+        orderRepository.save(order);
+        return order;
+    }
+
+    private String generateOrderNumber() {
+        // Simple order number generation, you might want something more robust
+        return "ORD-" + System.currentTimeMillis();
     }
 }

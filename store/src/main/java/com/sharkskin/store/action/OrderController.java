@@ -1,7 +1,10 @@
 package com.sharkskin.store.action;
 
+import com.sharkskin.store.model.Cart;
 import com.sharkskin.store.model.Order;
+import com.sharkskin.store.model.PaymentMethod;
 import com.sharkskin.store.model.UserModel;
+import com.sharkskin.store.service.CartService;
 import com.sharkskin.store.service.OrderService;
 import com.sharkskin.store.service.UserService;
 import com.sharkskin.store.service.GcsImageUploadService;
@@ -24,6 +27,9 @@ public class OrderController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private CartService cartService;
 
     @Autowired
     private GcsImageUploadService gcsImageUploadService;
@@ -71,5 +77,36 @@ public class OrderController {
         }
 
         return "my_orders";
+    }
+
+    @PostMapping("/create-order")
+    public String createOrder(HttpSession session, @RequestParam String paymentMethod) {
+        String username = (String) session.getAttribute("username");
+        if (username == null) {
+            return "redirect:/login";
+        }
+
+        UserModel user = userService.getUserByUsername(username);
+        Cart cart = cartService.getCart(session);
+
+        if (cart.getItems().isEmpty()) {
+            return "redirect:/cart";
+        }
+
+        PaymentMethod pm = PaymentMethod.valueOf(paymentMethod);
+        Order order = orderService.createOrder(cart, user, pm);
+
+        if (pm == PaymentMethod.CASH_ON_DELIVERY) {
+            cartService.clearCart(session);
+            return "redirect:/payment-success";
+        } else {
+            // Redirect to Line Pay
+            return "redirect:/linepay/pay?orderNumber=" + order.getOrderNumber();
+        }
+    }
+
+    @GetMapping("/payment-success")
+    public String paymentSuccess() {
+        return "payment_success";
     }
 }

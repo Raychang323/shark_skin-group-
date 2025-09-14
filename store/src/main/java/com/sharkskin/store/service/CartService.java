@@ -1,5 +1,11 @@
 package com.sharkskin.store.service;
 
+import com.sharkskin.store.model.Order;
+import com.sharkskin.store.model.OrderItem;
+import com.sharkskin.store.model.PaymentMethod;
+import com.sharkskin.store.model.OrderStatus;
+import com.sharkskin.store.model.UserModel;
+import com.sharkskin.store.repositories.OrderRepository;
 import com.sharkskin.store.model.Cart;
 import com.sharkskin.store.model.CartItem;
 import com.sharkskin.store.model.Product;
@@ -30,14 +36,16 @@ public class CartService {
 
     private final UserRepository userRepository;
     private final GcsImageUploadService gcsImageUploadService; // Add this
+    private final OrderRepository orderRepository; // Add this field
 
     @Autowired
-    public CartService(CartRepository cartRepository, CartItemRepository cartItemRepository, ProductRepository productRepository, UserRepository userRepository, GcsImageUploadService gcsImageUploadService) { // Add GcsImageUploadService
+    public CartService(CartRepository cartRepository, CartItemRepository cartItemRepository, ProductRepository productRepository, UserRepository userRepository, GcsImageUploadService gcsImageUploadService, OrderRepository orderRepository) { // Add OrderRepository
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
         this.productRepository = productRepository;
         this.userRepository = userRepository;
         this.gcsImageUploadService = gcsImageUploadService; // Add this
+        this.orderRepository = orderRepository; // Assign it
     }
 
     @Transactional
@@ -214,6 +222,56 @@ public class CartService {
             }
         }
         return new com.sharkskin.store.dto.CartSummaryDto(itemDtos, cart.getTotalPrice());
+    }
+
+    @Transactional
+    public void clearCart(HttpSession session) {
+        Cart cart = getCart(session);
+        cartItemRepository.deleteAll(cart.getItems());
+        cart.getItems().clear();
+        cartRepository.save(cart);
+    }
+
+    @Transactional
+    public Order createOrderFromCart(HttpSession session, PaymentMethod paymentMethod, OrderStatus orderStatus) {
+        String username = (String) session.getAttribute("username");
+        if (username == null) {
+            throw new IllegalStateException("User not logged in.");
+        }
+
+        Cart cart = getCart(session);
+        if (cart == null || cart.getItems().isEmpty()) {
+            throw new IllegalStateException("Cart is empty.");
+        }
+
+        UserModel user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalStateException("User not found."));
+
+        // Create a new Order
+        Order order = new Order();
+        order.setOrderNumber("ORD-" + UUID.randomUUID().toString().substring(0, 8)); // Generate a unique order number
+        order.setEmail(user.getEmail());
+        order.setStatus(orderStatus);
+        order.setPaymentMethod(paymentMethod);
+        order.setTotalPrice(cart.getTotalPrice());
+        order.setUser(user); // Link the order to the user
+
+        // Convert CartItems to OrderItems
+        List<OrderItem> orderItems = new ArrayList<>();
+        for (CartItem cartItem : cart.getItems()) {
+            OrderItem orderItem = new OrderItem();
+            orderItem.setProduct(cartItem.getProduct());
+            orderItem.setQuantity(cartItem.getQuantity());
+            orderItem.setOrder(order); // Link the order item to the order
+            orderItems.add(orderItem);
+        }
+        order.setItems(orderItems);
+
+        orderRepository.save(order); // Save the order and its items (due to cascade)
+
+        // Clear the cart after order is created
+        clearCart(session);
+        return order;
     }
 }
 

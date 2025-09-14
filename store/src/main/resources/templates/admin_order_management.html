@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>訂單管理</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-5">
+    <h2>訂單管理</h2>
+
+    <div th:if="${message}" class="alert alert-danger" role="alert">
+        <p th:text="${message}"></p>
+    </div>
+    <div th:if="${successMessage}" class="alert alert-success" role="alert">
+        <p th:text="${successMessage}"></p>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>訂單編號</th>
+            <th>Email</th>
+            <th>總金額</th>
+            <th>付款方式</th>
+            <th>狀態</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="order : ${orders}">
+            <td th:text="${order.orderNumber}"></td>
+            <td th:text="${order.email}"></td>
+            <td th:text="${order.totalPrice}"></td>
+            <td th:text="${order.paymentMethod}"></td>
+            <td>
+                <form th:action="@{/admin/order/update-status}" method="post" class="form-inline">
+                    <input type="hidden" name="orderNumber" th:value="${order.orderNumber}">
+                    <select name="newStatus" class="form-control form-control-sm mr-2">
+                        <option th:each="status : ${orderStatuses}"
+                                th:value="${status}"
+                                th:text="${status}"
+                                th:selected="${order.status == status}">
+                        </option>
+                    </select>
+                    <button type="submit" class="btn btn-primary btn-sm">更新</button>
+                </form>
+            </td>
+            <td>
+                <!-- Optionally add a link to view order details -->
+                <a th:href="@{/admin/order/details/{orderNumber}(orderNumber=${order.orderNumber})}" class="btn btn-info btn-sm">查看詳情</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

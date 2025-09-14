@@ -38,8 +38,7 @@
             </div>
         </div>
     </div>
-	 <div th:each="order : ${orders}">
-	<a th:href="@{/linepay/pay(orderNumber=${order.orderNumber})}">付款</a>
+	 <div>
 	<a href="/home" class="btn btn-secondary mt-3">回到會員首頁</a>
 	</div>
  <div style="color: green;">

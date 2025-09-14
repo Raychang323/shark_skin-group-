@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>付款處理中</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .loader {
+            border: 16px solid #f3f3f3; /* Light grey */
+            border-top: 16px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            animation: spin 2s linear infinite;
+            margin: 50px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5 text-center">
+    <h2>付款中請稍後</h2>
+    <div class="loader"></div>
+    <p>正在將您導向至 LINE Pay 付款頁面...</p>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var paymentUrl = /*[[${paymentUrl}]]*/ '';
+    if (paymentUrl) {
+        window.location.href = paymentUrl;
+    }
+    /*]]>*/
+</script>
+
+</body>
+</html>

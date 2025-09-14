@@ -1,6 +1,7 @@
 //邏輯判斷及操作 上：Controller、 下：Repository 
 package com.sharkskin.store.service;
 
+import java.util.Optional;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,9 +44,13 @@ public class UserService {
 			return true;
 	}
 	//登入
-	public boolean login(String username, String password) {
-		UserModel user = userRepository.findByUsername(username);
-			return (user != null && user.getPassword().equals(password));		  
+		public boolean login(String username, String password) {
+		Optional<UserModel> userOptional = userRepository.findByUsername(username);
+		if (userOptional.isPresent()) {
+			UserModel user = userOptional.get();
+			return user.getPassword().equals(password);
+		}
+		return false;		  
 	}
 	public boolean verify (String email, String code){
 		UserModel user=userRepository.findByEmail(email);
@@ -63,10 +68,11 @@ public class UserService {
 	
 	//更新
 	public boolean update(String username, String newPassword, String newEmail) {
-		UserModel user = userRepository.findByUsername(username);
-		if(user==null) {
+		Optional<UserModel> userOptional = userRepository.findByUsername(username);
+		if(userOptional.isEmpty()) {
 			return false;
 		}
+		UserModel user = userOptional.get();
 		//更新密碼
 		if(newPassword!=null && !newPassword.isEmpty()) {
 			user.setPassword(newPassword);
@@ -81,7 +87,7 @@ public class UserService {
 }
 	//根據帳號抓使用者資料
 	public UserModel getUserByUsername(String username) {
-		return userRepository.findByUsername(username);
+		return userRepository.findByUsername(username).orElse(null);
 		}
 	
 
@@ -96,7 +102,13 @@ public class UserService {
 
      public void callSendEmail(String username){
         SimpleMailMessage message = new SimpleMailMessage();
-		UserModel user = userRepository.findByUsername(username);
+		Optional<UserModel> userOptional = userRepository.findByUsername(username);
+        if (userOptional.isEmpty()) {
+            // Handle case where user is not found, e.g., log an error or throw an exception
+            System.err.println("User not found for sending email: " + username);
+            return;
+        }
+        UserModel user = userOptional.get();
         message.setTo(user.getEmail()); //設置收件人信箱
         message.setSubject("鯊皮認證"); //設置信箱主題
         message.setText("親您好，這是你的驗證碼:\n"+(user.getVerificationCode())); //設置信箱內容

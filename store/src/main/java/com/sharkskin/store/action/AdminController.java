@@ -1,11 +1,14 @@
 package com.sharkskin.store.action;
 
+import com.sharkskin.store.model.Order;
+import com.sharkskin.store.model.OrderStatus;
 import com.sharkskin.store.model.Product;
 import com.sharkskin.store.model.ProductImage;
 import com.sharkskin.store.model.UserModel;
 import com.sharkskin.store.repositories.OrderRepository;
 import com.sharkskin.store.repositories.ProductRepository;
 import com.sharkskin.store.repositories.UserRepository;
+import com.sharkskin.store.service.OrderService;
 import com.sharkskin.store.service.UserService;
 import com.sharkskin.store.service.GcsImageUploadService; // Import GCS service
 import com.sharkskin.store.repositories.ProductImageRepository; // Import ProductImageRepository
@@ -35,15 +38,17 @@ public class AdminController {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
+    private final OrderService orderService;
     private final GcsImageUploadService gcsImageUploadService; // Inject GCS service
     private final ProductImageRepository productImageRepository; // Inject ProductImageRepository
 
     @Autowired
-    public AdminController(UserService userService, ProductRepository productRepository, UserRepository userRepository, OrderRepository orderRepository, GcsImageUploadService gcsImageUploadService, ProductImageRepository productImageRepository) {
+    public AdminController(UserService userService, ProductRepository productRepository, UserRepository userRepository, OrderRepository orderRepository, OrderService orderService, GcsImageUploadService gcsImageUploadService, ProductImageRepository productImageRepository) {
         this.userService = userService;
         this.productRepository = productRepository;
         this.userRepository = userRepository;
         this.orderRepository = orderRepository;
+        this.orderService = orderService;
         this.gcsImageUploadService = gcsImageUploadService;
         this.productImageRepository = productImageRepository;
     }
@@ -62,7 +67,7 @@ public class AdminController {
         UserModel user = userService.getUserByUsername(username);
         if (user != null && user.getPassword().equals(password) && "ADMIN".equals(user.getRole())) {
             session.setAttribute("adminUsername", username);
-            return "redirect:/portal/a9x3z7/dashboard"; 
+            return "redirect:/portal/a9x3z7/dashboard";
         } else {
             model.addAttribute("message", "帳號或密碼錯誤，或您沒有管理員權限！");
             return "admin_login";
@@ -113,7 +118,7 @@ public class AdminController {
         if (name == null || name.trim().isEmpty()) {
             errors.add("商品名稱");
         }
-        
+
         int parsedPrice = -1;
         try {
             parsedPrice = Integer.parseInt(price);
@@ -243,7 +248,6 @@ public class AdminController {
         return "admin_product_management";
     }
 
-    
 
     // Product Management - Toggle Product Listed Status
     @PostMapping("/admin/product/toggle-listed")

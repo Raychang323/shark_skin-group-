@@ -1,12 +1,62 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-Hant">
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>付款失敗</title>
+    <link rel="stylesheet" href="/css/base.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+        h1 {
+            color: #dc3545; /* Red for error */
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+        p {
+            color: #6c757d;
+            font-size: 1.1em;
+            margin-bottom: 25px;
+        }
+        a {
+            display: inline-block;
+            background-color: #007bff; /* Blue for primary action */
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        a:hover {
+            background-color: #0056b3;
+        }
+        strong {
+            color: #343a40;
+        }
+    </style>
 </head>
 <body>
-<h1>付款失敗！請在重新嘗試</h1>
-<p>訂單編號：<strong th:text="${orderNumber}"></strong></p>
-<a href="/">返回首頁</a>
+    <div class="container">
+        <h1>付款失敗！請再重新嘗試</h1>
+        <p>交易編號：<strong th:text="${transactionId}"></strong></p>
+        <a href="/checkout">返回結帳頁面</a>
+    </div>
 </body>
 </html>
