@@ -16,22 +16,18 @@
     <style>
         /*首頁水藍色背景*/
 .bubble-header {
-  position: absolute; /* Changed to absolute */
-  left: 0; /* Moved to left */
-  top: 50%; /* Centered vertically */
-  transform: translateY(-50%); /* Centered vertically */
-  padding: 20px 30px; /* Adjusted padding */
-  text-align: left; /* Aligned text to left */
+  position: relative;
+  padding: 60px 20px;
+  text-align: center;
   background: linear-gradient(270deg, #1abc9c, #3498db, #6dd5ed);
   background-size: 600% 600%;
   animation: gradientBG 15s ease infinite;/*15秒顏色漸層*/
-  border-radius: 0 12px 12px 0; /* Adjusted border-radius */
-  height: auto; /* Adjusted height */
-  width: fit-content; /* Shrink to content width */
-  margin: 0; /* Removed margin */
+  border-radius: 12px;
+  height: 150px;
+  margin: 40px;
   box-shadow: inset 0 -20px 40px rgba(0,0,0,0.05);
   overflow: hidden;
-  z-index: 1; /* Ensure it's above other content */
+
 }
  /*漸層樣板*/
   @keyframes gradientBG {
@@ -61,14 +57,13 @@
         /*首頁泡泡特效*/
         .body {font-family: 'Noto Sans TC', sans-serif;}
         .bubble-header h1 {font-family: 'Zen Kaku Gothic New', sans-serif;}
-        .bubble-header h2 { text-align: left; /* Aligned text to left */ }
+        .bubble-header h2 { text-align: center; }
 
 
-        .product-carousel-container {
+                .product-carousel-container {
           width: 50%;
           max-width: 400px;
-          margin-left: auto; /* Moved to right */
-          margin-right: 20px; /* Added right margin */
+          margin: 0 auto;
           position: relative;
           border-radius: 8px;
         }
@@ -149,10 +144,9 @@
         }
 
         /* View All Button Styles */
-        .view-all-container {
-            text-align: right; /* Moved to right */
+                .view-all-container {
+            text-align: center;
             margin: 30px 0;
-            padding-right: 20px; /* Added right padding */
         }
         .view-all-button {
             display: inline-block;
@@ -496,7 +490,7 @@ console.log('特效測試');
   <div class="popup-box">
     <span class="popup-close" id="popup-close">&times;</span>
     <h3><img src="/images/shark-popup.svg" alt="Shark Icon" class="popup-icon">
-         今日全館限時折扣
+         今日全館絕不打折
         </h3>
     <p class="popup-desc">全館商品不打折，限時至今晚 23:59！</p>
     <div class="countdown" id="countdown">剩下 00:00:00</div>
