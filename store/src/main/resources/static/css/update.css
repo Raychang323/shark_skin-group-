@@ -1,0 +1,92 @@
+.body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(to bottom, #a2d4ec, #83c5be, #56cfe1);
+  color: #e0f7fa;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  min-height: 100vh;
+  justify-content: center;
+}
+
+.h1 {
+  font-size: 28px;
+  margin-bottom: 30px;
+  color: #ffffff;
+  text-shadow: 1px 1px 2px #000;
+
+}
+
+.message {
+  background-color: transparent;
+  color: #a7ffeb;
+  padding: 12px 20px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.form {
+  background-color: #ffffff10;
+  backdrop-filter: blur(6px);
+  border: 1px solid #ffffff30;
+  padding: 30px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    text-align: center;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+  color: #b2ebf2;
+}
+
+.input[type="email"],
+.input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 16px;
+  border: none;
+  border-radius: 6px;
+  background-color: #e0f2f1;
+  color: #00b853;
+  font-size: 14px;
+}
+
+.small {
+  display: block;
+  margin-bottom: 16px;
+  color: #01545f;
+}
+
+.button {
+  background-color: #00acc1;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover {
+  background-color: #00838f;
+}
+
+.a {
+  margin-top: 20px;
+  color: #b2ebf2;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.a:hover {
+  text-decoration: underline;
+}

@@ -1,26 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="stylesheet" th:href="@{/css/update.css}">
 <meta charset="UTF-8">
+
 <title>修改會員資料</title>
 </head>
-<body>
-<h1>修改會員資料</h1>
+<body class="body">
+<h1 class="h1">修改會員資料</h1>
 
 <!-- 顯示訊息 -->
-<div style="color: green;">
+<div class="message" th:if="${message}">
     <p th:text="${message}"></p>
 </div>
 
-<form action="/update" method="post">
+<form class="form" action="/update" method="post">
     <!-- 隱藏 username 傳給 Controller -->
     <input type="hidden" name="username" th:value="${user.username}" />
 
-    Email: <input type="email" name="email" th:value="${user.email}" required><br>
-    密碼: <input type="password" name="password"><br>
-    <small>若不修改密碼，請留空</small><br>
-    <button type="submit">更新</button>
+    <label class="input" for="email">
+        Email: <input type="email" name="email" th:value="${user.email}" required>
+    </label>
+    <label class="input" for="password">
+        密碼 : <input type="password" name="password">
+    </label>
+    <small class="small">若不修改密碼，請留空</small>
+    <button class="button" type="submit">更新</button>
 </form>
-<a href="/home">回首頁</a>
+    <a class="a" href="/home">回首頁</a>
 </body>
 </html>

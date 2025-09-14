@@ -34,13 +34,12 @@ public class OrderService {
     public List<Order> findByUserEmail(String email) {
         return orderRepository.findByEmail(email);
     }
-        //for linepay
-        // 依 orderNumber 查找單筆訂單
-        public Order findByOrderNumber(String orderNumber) {
-            return orderRepository.findByOrderNumber(orderNumber);
-        }
-        //更新訂單
-        public void saveOrder(Order order) {
-            orderRepository.save(order);
+
+    public Optional<Order> findByOrderNumber(String orderNumber) {
+        return orderRepository.findByOrderNumber(orderNumber);
+    }
+
+    public void saveOrder(Order order) {
+        orderRepository.save(order);
     }
 }

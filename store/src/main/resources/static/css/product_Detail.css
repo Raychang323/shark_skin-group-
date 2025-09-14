@@ -1,0 +1,98 @@
+body {
+  font-family: 'Noto Sans TC', sans-serif;
+  background-color: #f5f5f5;
+  margin: 0;
+  padding: 40px;
+  background-image: url('https://www.transparenttextures.com/patterns/clean-gray-paper.png');
+}
+
+.product-wrapper {
+  max-width: 960px;
+  margin: auto;
+  background: #fff;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+display: flex;
+  justify-content: center; /* 水平置中 */
+  align-items: flex-start; /* 垂直對齊上方 */
+}
+
+.product-image {
+  flex: 1 1 300px;
+  text-align: center;
+  
+}
+
+.product-image img {
+  width: 100%;
+  max-width: 300px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.product-info {
+  flex: 2 1 400px;
+}
+
+.product-info h1 {
+  font-size: 28px;
+  margin-bottom: 16px;
+}
+
+.product-info p {
+  font-size: 18px;
+  margin: 8px 0;
+}
+
+.add-to-cart-form {
+  margin-top: 24px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.add-to-cart-form input[type="number"] {
+  width: 80px;
+  padding: 6px;
+  font-size: 16px;
+}
+
+.add-to-cart-form button {
+  padding: 10px 20px;
+  background-color: #ff6f61;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.add-to-cart-form button:hover {
+  background-color: #e65c50;
+}
+
+.out-of-stock {
+  margin-top: 24px;
+  padding: 10px 20px;
+  background-color: #999;
+  color: white;
+  border-radius: 6px;
+  cursor: not-allowed;
+}
+
+.not-found {
+  text-align: center;
+  font-size: 20px;
+  color: #888;
+  margin-top: 60px;
+}
+
+h1 {
+  text-align: center;
+  font-size: 32px;
+  margin-bottom: 24px;
+}

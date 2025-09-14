@@ -1,0 +1,157 @@
+/* 背景漸層動畫 */
+body {
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(to bottom right, #16c3da, #0b61b1);
+  font-family:  'Noto Sans TC', sans-serif;
+  font-size: 16px;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.login-container {
+  max-width: 400px;
+  padding: 40px;
+  margin: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(6px);
+  text-align: center;
+  animation: fadeIn 0.6s ease;
+}
+
+.login-title {
+  font-size: 28px;
+  margin-bottom: 24px;
+  pointer-events: none; /* 禁止點擊 */
+  user-select: none;    /* 禁止選取文字 */
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: left;
+}
+
+.form-label {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.form-input {
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  width: 100%;
+}
+
+.form-input::placeholder {
+  color: #ccc;
+}
+
+.password-wrapper {
+  position: relative;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 18px;
+  color: #ccc;
+}
+
+.form-button {
+  padding: 12px;
+  background: #00bfa5;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.form-button:hover {
+  background: #00796b;
+}
+
+.register-link {
+  margin-top: 20px;
+  font-size: 18px;
+}
+
+.register-link a {
+  color: #6dd5ed;
+  font-size: 18px;
+  text-decoration: underline;
+}
+
+.message {
+  margin-bottom: 20px;
+  color: #2ff0f0;
+  font-weight: bold;
+}
+
+/* 登入失敗紅框 + shake */
+.login-form.error .form-input {
+  border: 2px solid #e74c3c;
+  animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  50% { transform: translateX(6px); }
+  75% { transform: translateX(-6px); }
+  100% { transform: translateX(0); }
+}
+
+/* 登入成功淡出動畫 */
+@keyframes fadeOut {
+  to { opacity: 0; transform: scale(0.95); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@media (max-width: 480px) {
+  .login-container {
+    margin: 20px;
+    padding: 30px;
+  }
+
+  .login-title {
+    font-size: 22px;
+  }
+
+  .form-input {
+    font-size: 14px;
+  }
+
+  .form-button {
+    font-size: 15px;
+  }
+}
+.login-form {
+  padding: 0 8px;
+}
+.form-input {
+  margin: 0;
+}
+
+
+
+
