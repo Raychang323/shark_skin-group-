@@ -7,18 +7,26 @@ import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import com.sharkskin.store.model.UserModel;
 import com.sharkskin.store.repositories.UserRepository;
 
 @Service
 public class UserService {
 	//注入
-	@Autowired
-		private UserRepository userRepository;
-	@Autowired
-    private JavaMailSender mailsend;
+	private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JavaMailSender mailsend;
+
+    @Autowired
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JavaMailSender mailsend) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.mailsend = mailsend;
+    }
 
 	//註冊
 
@@ -34,24 +42,17 @@ public class UserService {
 					return false;
 				}
 		//檢查是否有驗證過的mail存在
-		if (userRepository.existsByEmailAndEmailverfyFalse(user.getEmail())) {
-				return false;
-			}
-			//存進資料庫 明碼存入
+			if (userRepository.existsByEmailAndEmailverfyFalse(user.getEmail())) {
+					return false;
+				}
+			//存進資料庫 加密存入
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
 			userRepository.save(user);
 			//發送驗證信
 			sendEmail(user);
 			return true;
 	}
-	//登入
-		public boolean login(String username, String password) {
-		Optional<UserModel> userOptional = userRepository.findByUsername(username);
-		if (userOptional.isPresent()) {
-			UserModel user = userOptional.get();
-			return user.getPassword().equals(password);
-		}
-		return false;		  
-	}
+
 	public boolean verify (String email, String code){
 		UserModel user=userRepository.findByEmail(email);
 		if(code.isEmpty()){
@@ -75,7 +76,7 @@ public class UserService {
 		UserModel user = userOptional.get();
 		//更新密碼
 		if(newPassword!=null && !newPassword.isEmpty()) {
-			user.setPassword(newPassword);
+			user.setPassword(passwordEncoder.encode(newPassword));
 		}
 
 		//更新email
@@ -87,17 +88,24 @@ public class UserService {
 }
 	//根據帳號抓使用者資料
 	public UserModel getUserByUsername(String username) {
-		return userRepository.findByUsername(username).orElse(null);
+		return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 		}
 	
 
-
+	
 		public void sendEmail(UserModel user) {
     SimpleMailMessage message = new SimpleMailMessage();        
         message.setTo(user.getEmail()); //設置收件人信箱
         message.setSubject("鯊皮認證"); //設置信箱主題
         message.setText("您好，感謝您註冊SharkShop，你的驗證碼:\n"+(user.getVerificationCode())); //設置信箱內容
-        mailsend.send(message); //發送郵件
+        try {
+            mailsend.send(message); //發送郵件
+            System.out.println("Email sent successfully to: " + user.getEmail());
+        } catch (Exception e) {
+            System.err.println("Failed to send email to: " + user.getEmail());
+            e.printStackTrace(); // 打印堆棧追蹤
+        }
      }
 
      public void callSendEmail(String username){

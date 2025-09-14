@@ -1,15 +1,19 @@
 package com.sharkskin.store.action;
 
+import java.security.Principal;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.sharkskin.store.model.UserModel;
-import com.sharkskin.store.service.UserService;
-import com.sharkskin.store.service.CartService; // Add this import
+import com.sharkskin.store.service.CartService;
+import com.sharkskin.store.service.UserService; // Add this import
 
 import jakarta.servlet.http.HttpSession;
 
@@ -38,7 +42,7 @@ public class UserController {
         //註冊結果
         boolean success = userService.register(user);
         if (success) {
-            return "redirect:/verify"; //重導到登入頁面
+            return "redirect:/verify?email=" + email; //重導到登入頁面
         } else {
             model.addAttribute("message", "帳號或Email已存在！");
             return "register"; //重回註冊頁面
@@ -49,51 +53,45 @@ public class UserController {
     public String showLoginPage() {
         return "login";
     }
-    @PostMapping("/login")  
-    public String login(@RequestParam String username,
-			            @RequestParam String password,
-			            HttpSession session,
-			            Model model) {
-    	if (userService.login(username, password)) {
-            session.setAttribute("username", username);
-            cartService.mergeCarts(session); // Call mergeCarts after successful login
-            return "redirect:/home";
-        }else {
-            model.addAttribute("message", "帳號或密碼錯誤！");
-            return "login";
-        }
+    
+    //到驗證頁面
+    @GetMapping("/verify")
+    public String showVerifyPage(@RequestParam String email, Model model) {
+        model.addAttribute("email", email);
+        return "verify";
     }
+
     //驗證頁面
     @PostMapping("/verify")
-   public String verify(@RequestParam String code,
+   public ModelAndView verify(@RequestParam String code,
             @RequestParam String email,
-            HttpSession session,
-            Model model){
+            RedirectAttributes redirectAttributes){
         boolean success = userService.verify(email, code );
         if(success){
-            session.setAttribute("email", email);
-            return "redirect:/home";
+            redirectAttributes.addFlashAttribute("message", "驗證成功！請登入。");
+            return new ModelAndView("redirect:/login");
         }else{
-            model.addAttribute("message", "驗證失敗");
-            return "verify";
+            ModelAndView mav = new ModelAndView("verify");
+            mav.addObject("message", "驗證失敗");
+            mav.addObject("email", email);
+            return mav;
         }
-            }
+    }
     //使用者首頁
     @GetMapping("/home")
-    public String home(HttpSession session) {
-        if (session.getAttribute("username") == null) {
+    public String home(Principal principal) {
+        if (principal == null) {
             return "redirect:/login";
         }
         return "home";
     }
     //更新頁面
     @GetMapping("/update")
-    public String Update(HttpSession session, Model model) {
-        String username = (String) session.getAttribute("username");
-        //沒登入
-        if (username == null) {
+    public String Update(Principal principal, Model model) {
+        if (principal == null) {
             return "redirect:/login";
         }
+        String username = principal.getName();
         UserModel user = userService.getUserByUsername(username);
         model.addAttribute("user", user);
         return "update";

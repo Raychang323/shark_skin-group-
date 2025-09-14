@@ -2,9 +2,14 @@ package com.sharkskin.store.model;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,7 +19,7 @@ import jakarta.persistence.Transient;
 
 @Entity //標記JPA實體類別
 @Table(name = "`user`") //標記資料庫table name
-public class UserModel {
+public class UserModel implements UserDetails {
 
 	@Id
     private String id; // UUID as String
@@ -51,12 +56,14 @@ public class UserModel {
 	public void setId(String id) {
 		this.id = id;
 	}
+	@Override
 	public String getUsername() {
 		return username;
 	}
 	public void setUsername(String username) {
 		this.username = username;
 	}
+	@Override
 	public String getPassword() {
 		return password;
 	}
@@ -107,5 +114,30 @@ public class UserModel {
 
     public void setHasOrders(boolean hasOrders) {
         this.hasOrders = hasOrders;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singletonList(new SimpleGrantedAuthority(role));
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return emailverfy;
     }
 }

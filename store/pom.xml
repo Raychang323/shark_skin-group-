@@ -86,15 +86,15 @@
         </dependency>
 
 		
-        <!-- <dependency>
+        <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-test</artifactId>
                 <scope>test</scope>
-        </dependency> -->
-        <!-- <dependency>
+        </dependency>
+        <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-security</artifactId>
-        </dependency> -->
+        </dependency>
 
         <!-- spring提供的安全保護機制 -->
         <dependency>
@@ -140,3 +140,4 @@
     </build>
 
 </project>
+

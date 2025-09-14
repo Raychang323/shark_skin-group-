@@ -14,6 +14,7 @@
 <div class="login-container">
  <h2 class="login-title">註冊新帳號</h2>
 <form action="register" method="post" class="login-form">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
     <label for="nn" class="form-label">帳號:
         <input type="text" id="nn" name="username" class="form-input" required><br>
