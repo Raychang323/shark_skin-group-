@@ -41,12 +41,62 @@ public class OrderService {
         return orderRepository.findByEmail(email);
     }
 
+    /**
+     * Finds all orders. Used for admin order management.
+     * @return A list of all orders.
+     */
+    public List<Order> findAllOrders() {
+        return orderRepository.findAll();
+    }
+
+    public List<Order> findOrdersByStatus(String status) {
+        try {
+            // Try to find by enum name first
+            OrderStatus orderStatus = OrderStatus.valueOf(status.toUpperCase());
+            return orderRepository.findByStatus(orderStatus);
+        } catch (IllegalArgumentException e) {
+            // If not found by enum name, try to find by display name
+            for (OrderStatus os : OrderStatus.values()) {
+                if (os.getDisplayName().equalsIgnoreCase(status)) {
+                    return orderRepository.findByStatus(os);
+                }
+            }
+            // If still not found, handle as invalid status
+            return List.of(); // Or throw new IllegalArgumentException("Invalid order status: " + status);
+        }
+    }
+
     public Optional<Order> findByOrderNumber(String orderNumber) {
         return orderRepository.findByOrderNumber(orderNumber);
     }
 
     public void saveOrder(Order order) {
         orderRepository.save(order);
+    }
+
+    public void updateOrderStatus(String orderNumber, OrderStatus newStatus) {
+        Optional<Order> orderOptional = orderRepository.findByOrderNumber(orderNumber);
+        if (orderOptional.isPresent()) {
+            Order order = orderOptional.get();
+            order.setStatus(newStatus);
+            orderRepository.save(order);
+        } else {
+            throw new RuntimeException("Order not found with order number: " + orderNumber);
+        }
+    }
+
+    public void bulkUpdateOrderStatus(List<String> orderNumbers, OrderStatus newStatus) {
+        for (String orderNumber : orderNumbers) {
+            Optional<Order> orderOptional = orderRepository.findByOrderNumber(orderNumber);
+            if (orderOptional.isPresent()) {
+                Order order = orderOptional.get();
+                order.setStatus(newStatus);
+                orderRepository.save(order);
+            } else {
+                // Optionally log a warning if an order is not found
+                System.out.println("Warning: Order not found with order number: " + orderNumber + " during bulk update.");
+            }
+        }
     }
 
     public Order createOrder(Cart cart, UserModel user, PaymentMethod paymentMethod) {

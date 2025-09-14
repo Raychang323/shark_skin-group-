@@ -21,6 +21,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile; // Import MultipartFile
+import com.sharkskin.store.dto.BulkOrderStatusUpdateDto; // Add this import
+import org.springframework.http.HttpStatus; // Add this import
+import org.springframework.http.ResponseEntity; // Add this import
+import org.springframework.web.bind.annotation.RequestBody; // Add this import
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException; // Import IOException
@@ -228,25 +232,41 @@ public class AdminController {
         return "admin_user_management";
     }
 
-    // Product Management - List Products
-    @GetMapping("/admin/product-management")
-    public String showProductManagement(HttpSession session, Model model) {
+    // Order Management
+    @GetMapping("/admin/order-management")
+    public String showOrderManagement(HttpSession session, Model model,
+                                      @RequestParam(required = false) String status) {
         if (session.getAttribute("adminUsername") == null) {
             return "redirect:/admin/login";
         }
-        List<Product> products = productRepository.findAllDistinct();
-        // Generate signed URLs for each product image
-        for (Product product : products) {
-            if (product.getImages() != null) {
-                for (ProductImage image : product.getImages()) {
-                    String signedUrl = gcsImageUploadService.generateSignedUrl(image.getImageUrl(), 60); // 60-minute expiration
-                    image.setSignedUrl(signedUrl);
-                }
-            }
+        List<Order> orders;
+        if (status != null && !status.isEmpty()) {
+            orders = orderService.findOrdersByStatus(status);
+        } else {
+            orders = orderService.findAllOrders();
         }
-        model.addAttribute("products", products);
-        return "admin_product_management";
+        model.addAttribute("orders", orders);
+        model.addAttribute("orderStatuses", OrderStatus.values()); // Add all possible order statuses to the model
+        return "admin_order_management";
     }
+
+    @PostMapping("/admin/orders/bulk-update-status")
+    public ResponseEntity<?> bulkUpdateOrderStatus(@RequestBody BulkOrderStatusUpdateDto dto, HttpSession session) {
+        if (session.getAttribute("adminUsername") == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("未經授權");
+        }
+        if (dto.getOrderNumbers() == null || dto.getOrderNumbers().isEmpty()) {
+            return ResponseEntity.badRequest().body("請選擇至少一個訂單進行更新。");
+        }
+        if (dto.getNewStatus() == null) {
+            return ResponseEntity.badRequest().body("請選擇一個新的狀態。");
+        }
+
+        orderService.bulkUpdateOrderStatus(dto.getOrderNumbers(), dto.getNewStatus());
+        return ResponseEntity.ok().body("訂單狀態批量更新成功！");
+    }
+
+    
 
 
     // Product Management - Toggle Product Listed Status

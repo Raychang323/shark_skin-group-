@@ -9,6 +9,19 @@
 <div class="container mt-5">
     <h2>訂單管理</h2>
 
+    <form th:action="@{/admin/order-management}" method="get" class="form-inline mb-3">
+        <label for="statusFilter" class="mr-2">篩選狀態:</label>
+        <select id="statusFilter" name="status" class="form-control mr-2">
+            <option value="">所有狀態</option>
+            <option th:each="status : ${orderStatuses}"
+                    th:value="${status}"
+                    th:text="${status}"
+                    th:selected="${status == param.status}">
+            </option>
+        </select>
+        <button type="submit" class="btn btn-info">篩選</button>
+    </form>
+
     <div th:if="${message}" class="alert alert-danger" role="alert">
         <p th:text="${message}"></p>
     </div>
@@ -21,38 +34,110 @@
         <tr>
             <th>訂單編號</th>
             <th>Email</th>
+            <th>訂購商品</th>
             <th>總金額</th>
             <th>付款方式</th>
             <th>狀態</th>
-            <th>操作</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="order : ${orders}">
+            <td><input type="checkbox" class="orderCheckbox" th:value="${order.orderNumber}"></td> <!-- 單個訂單複選框 -->
             <td th:text="${order.orderNumber}"></td>
             <td th:text="${order.email}"></td>
+            <td>
+                <ul class="list-unstyled">
+                    <li th:each="item : ${order.items}">
+                        <span th:text="${item.product.name}"></span> x <span th:text="${item.quantity}"></span>
+                    </li>
+                </ul>
+            </td>
             <td th:text="${order.totalPrice}"></td>
-            <td th:text="${order.paymentMethod}"></td>
-            <td>
-                <form th:action="@{/admin/order/update-status}" method="post" class="form-inline">
-                    <input type="hidden" name="orderNumber" th:value="${order.orderNumber}">
-                    <select name="newStatus" class="form-control form-control-sm mr-2">
-                        <option th:each="status : ${orderStatuses}"
-                                th:value="${status}"
-                                th:text="${status}"
-                                th:selected="${order.status == status}">
-                        </option>
-                    </select>
-                    <button type="submit" class="btn btn-primary btn-sm">更新</button>
-                </form>
-            </td>
-            <td>
-                <!-- Optionally add a link to view order details -->
-                <a th:href="@{/admin/order/details/{orderNumber}(orderNumber=${order.orderNumber})}" class="btn btn-info btn-sm">查看詳情</a>
-            </td>
+            <td th:text="${order.paymentMethod?.displayName}"></td>
+            <td th:text="${order.status.displayName}"></td>
         </tr>
         </tbody>
     </table>
 </div>
+<div class="floating-bulk-update">
+    <select id="bulkStatusSelect" class="form-control form-control-sm mr-2">
+        <option value="">選擇新狀態</option>
+        <option th:each="status : ${orderStatuses}"
+                th:value="${status}"
+                th:text="${status.displayName}">
+        </option>
+    </select>
+    <button id="bulkUpdateButton" class="btn btn-primary btn-sm">批量更新</button>
+</div>
+
+<style>
+    .floating-bulk-update {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        z-index: 1000;
+    }
+</style>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    $(document).ready(function() {
+        // Select All Checkbox
+        $('#selectAllOrders').on('change', function() {
+            $('.orderCheckbox').prop('checked', $(this).prop('checked'));
+        });
+
+        // Bulk Update Button Click
+        $('#bulkUpdateButton').on('click', function() {
+            var selectedOrderNumbers = [];
+            $('.orderCheckbox:checked').each(function() {
+                selectedOrderNumbers.push($(this).val());
+            });
+
+            var newStatus = $('#bulkStatusSelect').val();
+
+            if (selectedOrderNumbers.length === 0) {
+                alert('請選擇至少一個訂單進行更新！');
+                return;
+            }
+
+            if (!newStatus) {
+                alert('請選擇一個新的狀態！');
+                return;
+            }
+
+            if (confirm('確定要將選定的 ' + selectedOrderNumbers.length + ' 個訂單狀態更新為 ' + $('#bulkStatusSelect option:selected').text() + ' 嗎？')) {
+                $.ajax({
+                    url: '/admin/orders/bulk-update-status', // New backend endpoint
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        orderNumbers: selectedOrderNumbers,
+                        newStatus: newStatus
+                    }),
+                    success: function(response) {
+                        alert('訂單狀態更新成功！');
+                        // Refresh the page without full reload
+                        location.reload(); // For simplicity, a full reload. Can be optimized later.
+                    },
+                    error: function(xhr, status, error) {
+                        alert('訂單狀態更新失敗: ' + xhr.responseText);
+                        console.error('Error:', error);
+                    }
+                });
+            }
+        });
+    });
+    /*]]>*/
+</script>
+
 </body>
 </html>
