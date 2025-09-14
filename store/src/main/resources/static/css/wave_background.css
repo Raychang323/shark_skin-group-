@@ -1,0 +1,60 @@
+
+body {
+    margin: 0;
+    overflow-x: hidden;
+}
+
+.wave-background {
+    position: absolute; /* Changed to absolute */
+    top: 50%; /* Moved to middle-bottom */
+    left: 0;
+    width: 100%;
+    height: 50%; /* Occupy bottom half */
+    z-index: -1;
+    background: linear-gradient(to bottom, #e0f7fa, #81d4fa, #4fc3f7, #29b6f6, #03a9f4);
+    background-size: 100% 200%;
+    animation: waveAnimation 15s ease-in-out infinite alternate;
+}
+
+@keyframes waveAnimation {
+    0% {
+        background-position: 0% 0%;
+    }
+    100% {
+        background-position: 0% 100%;
+    }
+}
+
+.wave-background::before,
+.wave-background::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 100px; /* Adjust wave height */
+    background-repeat: repeat-x;
+    background-size: 2000px 200px; /* Adjust wave length and height */
+}
+
+.wave-background::before {
+    top: 0;
+    background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1000 100" xmlns="http://www.w3.org/2000/svg"><path fill="%23ffffff" d="M0,60 C200,20 400,80 600,40 C800,0 1000,60 1000,60 L1000,100 L0,100 Z" /></svg>');
+    animation: waveMove 20s linear infinite;
+    opacity: 0.7;
+}
+
+.wave-background::after {
+    bottom: 0;
+    background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1000 100" xmlns="http://www.w3.org/2000/svg"><path fill="%23ffffff80" d="M0,40 C200,80 400,20 600,60 C800,100 1000,40 1000,40 L1000,0 L0,0 Z" /></svg>'); /* Changed fill to semi-transparent white */
+    animation: waveMove 15s linear infinite reverse;
+    opacity: 0.3; /* Adjusted opacity */
+}
+
+@keyframes waveMove {
+    0% {
+        background-position-x: 0;
+    }
+    100% {
+        background-position-x: 2000px;
+    }
+}

@@ -1,32 +1,39 @@
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="stylesheet" th:href="@{/css/update.css}">
 <meta charset="UTF-8">
-
 <title>修改會員資料</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/register.css}">
+    <link rel="stylesheet" th:href="@{/css/bubble.css}">
 </head>
-<body class="body">
-<h1 class="h1">修改會員資料</h1>
+<body>
+<div class="login-container">
+    <h2 class="login-title">修改會員資料</h2>
 
-<!-- 顯示訊息 -->
-<div class="message" th:if="${message}">
-    <p th:text="${message}"></p>
-</div>
+    <!-- 顯示訊息 -->
+    <div class="message" th:if="${message}">
+        <p th:text="${message}"></p>
+    </div>
 
-<form class="form" action="/update" method="post">
+    <form class="login-form" action="/update" method="post">
     <!-- 隱藏 username 傳給 Controller -->
     <input type="hidden" name="username" th:value="${user.username}" />
 
-    <label class="input" for="email">
-        Email: <input type="email" name="email" th:value="${user.email}" required>
+    <label class="form-label" for="email">
+        Email: <input type="email" class="form-input" name="email" th:value="${user.email}" required><br>
     </label>
-    <label class="input" for="password">
-        密碼 : <input type="password" name="password">
+    <label class="form-label" for="password">
+        密碼 : <input type="password" class="form-input" name="password"><br>
     </label>
     <small class="small">若不修改密碼，請留空</small>
-    <button class="button" type="submit">更新</button>
+    <button class="form-button" type="submit">更新</button>
 </form>
-    <a class="a" href="/home">回首頁</a>
+</div>
+
+<div class="floating-bubble">
+    <a href="/home" class="home-btn">回首頁</a>
+</div>
 </body>
+</html>
 </html>

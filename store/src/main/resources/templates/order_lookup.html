@@ -3,30 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <title>訂單查詢</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" th:href="@{/css/order_lookup.css}">
-    <style>
-        .order-product-image { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/order.css}">
 </head>
 <body>
-<div class="container mt-5">
-    <h2>查詢您的訂單</h2>
-    <p>請輸入您的訂單編號及Email以查詢訂單狀態。</p>
+<div class="container login-container">
+    <h2 class="login-title">查詢您的訂單</h2>
 
-    <form th:action="@{/order-lookup}" method="post" class="mt-4">
-        <div class="form-group">
-            <label for="orderNumber">訂單編號</label>
-            <input type="text" class="form-control" id="orderNumber" name="orderNumber" required>
-        </div>
-        <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" class="form-control" id="email" name="email" required>
-        </div>
-        <button type="submit" class="btn btn-primary">查詢</button>
+    <form th:action="@{/order-lookup}" method="post" class="login-form">
+        <label for="orderNumber" class="form-label">訂單編號:</label>
+        <input type="text" class="form-input" id="orderNumber" name="orderNumber" placeholder="請輸入訂單編號" required><br>
+
+        <label for="email" class="form-label">Email:</label>
+        <input type="email" class="form-input" id="email" name="email" placeholder="請輸入Email" required><br>
+
+        <button type="submit" class="form-button">查詢</button>
     </form>
 
-    <div class="mt-5">
+    <div class="order-details-section">
         <!-- Error Message -->
         <div th:if="${error}" class="alert alert-danger">
             <p th:text="${error}"></p>
@@ -34,36 +27,40 @@
 
         <!-- Order Details -->
         <div th:if="${order}">
-            <h3>訂單詳細資料</h3>
-            <div class="card">
-                <div class="card-header">
-                    訂單編號: <strong th:text="${order.orderNumber}"></strong>
+            <h3 class="order-details-title">訂單詳細資料</h3>
+            <div class="order-card">
+                <div class="order-card-header">
+                    <span>訂單編號: <strong th:text="${order.orderNumber}"></strong></span>
+                    <span>狀態: <strong th:text="${order.displayStatus}"></strong></span>
+                    <span>Email: <strong th:text="${order.email}"></strong></span>
                 </div>
-                <div class="card-body">
-                    <p><strong>狀態:</strong> <span th:text="${order.status}"></span></p>
-                    <p><strong>Email:</strong> <span th:text="${order.email}"></span></p>
-                    <h5>訂單項目:</h5>
-                    <ul class="list-group">
-                        <li th:each="item : ${order.items}" class="list-group-item d-flex align-items-center">
-                            <img th:if="${item.product.images != null and not #lists.isEmpty(item.product.images)}" 
-                                 th:src="${item.product.images[0].signedUrl}" 
-                                 alt="Product Image" class="order-product-image mr-3">
-                            <div>
+                <div class="order-card-body">
+                    <h5 class="order-items-title">訂單項目:</h5>
+                    <ul class="order-list-group">
+                        <li th:each="item : ${order.items}" class="order-list-group-item">
+                            <div class="d-flex align-items-center order-item-details">
+                                <img th:if="${item.product.images != null and not #lists.isEmpty(item.product.images)}"
+                                     th:src="${item.product.images[0].signedUrl}"
+                                     alt="Product Image" class="order-product-image mr-3">
                                 <div>
-                                <span th:text="${item.product.name}"></span> - 
-                                數量: <span th:text="${item.quantity}"></span> 單價: <span th:text="${item.product.price}"></span> 共: <span th:text="${item.quantity * item.product.price}"></span>
-                            </div>
+                                    <span th:text="${item.product.name}"></span> -
+                                    <span>數量: <span th:text="${item.quantity}"></span></span>
+                                    <span>單價: <span th:text="${item.product.price}"></span></span>
+                                    <span>小計: <span th:text="${item.quantity * item.product.price}"></span></span>
+                                </div>
                             </div>
                         </li>
                     </ul>
                 </div>
-                <div class="card-footer">
+                <div class="order-card-footer">
                     <strong>總金額: <span th:text="${order.totalPrice}"></span></strong>
                 </div>
             </div>
         </div>
     </div>
-    <a href="/" class="btn btn-secondary mt-3">返回首頁</a>
+    <div class="text-center mt-3">
+        <a href="/" class="btn btn-secondary">返回首頁</a>
+    </div>
 </div>
 </body>
 </html>

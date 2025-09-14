@@ -11,28 +11,26 @@
 <body>
 
 
-<div class="register-container">
- <h2>註冊新帳號</h2>
-<form action="register" method="post">
+<div class="login-container">
+ <h2 class="login-title">註冊新帳號</h2>
+<form action="register" method="post" class="login-form">
 
-    <div class="form-group">
-    <label for="nn">帳號
-        <input type="text" id="nn" name="username" required><br>
+    <label for="nn" class="form-label">帳號:
+        <input type="text" id="nn" name="username" class="form-input" required><br>
     </label>
-    </div>
 
-    <div class="form-group">
-    <label for="pp">密碼<input type="password" id="pp" name="password" required><br>
+    <label for="pp" class="form-label">密碼:
+        <input type="password" id="pp" name="password" class="form-input" required><br>
     </label>
-    </div>
 
-    <div class="form-group">
-   <label for="ee">Email<input type="email" id="ee" name="email" required><br>
+   <label for="ee" class="form-label">Email:
+       <input type="email" id="ee" name="email" class="form-input" required><br>
     </label>
-    </div>
-    <button type="submit"class="submit-btn">註冊</button>
+    <button type="submit" class="form-button">註冊</button>
 </form>
-    <a href="login" class="login-link">已有帳號？去登入</a>
+    <div class="register-link">
+        <a href="login">已有帳號？去登入</a>
+    </div>
 </div>
 
 <div class="floating-bubble">

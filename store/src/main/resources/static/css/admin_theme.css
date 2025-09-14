@@ -1,0 +1,47 @@
+/* admin_theme.css */
+
+/* Thematic colors for admin buttons */
+.btn-primary {
+    background-color: #007bff; /* A thematic blue */
+    border-color: #007bff;
+}
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.btn-success {
+    background-color: #28a745; /* A thematic green */
+    border-color: #28a745;
+}
+.btn-success:hover {
+    background-color: #1e7e34;
+    border-color: #1e7e34;
+}
+
+.btn-info {
+    background-color: #17a2b8; /* Blue-green tone 1 (closer to blue) */
+    border-color: #17a2b8;
+}
+.btn-info:hover {
+    background-color: #117a8b;
+    border-color: #117a8b;
+}
+
+.btn-warning {
+    background-color: #20c997; /* Blue-green tone 2 (middle) */
+    border-color: #20c997;
+}
+.btn-warning:hover {
+    background-color: #1aa07f;
+    border-color: #1aa07f;
+}
+
+.btn-danger {
+    background-color: #008080; /* Blue-green tone 3 (closer to green, teal) */
+    border-color: #008080;
+}
+.btn-danger:hover {
+    background-color: #006666;
+    border-color: #006666;
+}

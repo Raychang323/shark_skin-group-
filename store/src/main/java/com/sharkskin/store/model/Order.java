@@ -106,6 +106,14 @@ public class Order {
         this.items = items;
     }
 
+    public String getDisplayStatus() {
+        return this.status != null ? this.status.getDisplayName() : "";
+    }
+
+    public String getDisplayPaymentMethod() {
+        return this.paymentMethod != null ? this.paymentMethod.getDisplayName() : "";
+    }
+
     // Helper methods for bidirectional relationship
     public void addOrderItem(OrderItem item) {
         items.add(item);

@@ -73,6 +73,16 @@ public class OrderController {
         UserModel user = userService.getUserByUsername(username);
         if (user != null) {
             List<Order> orders = orderService.findByUserEmail(user.getEmail());
+            orders.forEach(order -> {
+                order.getItems().forEach(item -> {
+                    if (item.getProduct() != null && item.getProduct().getImages() != null) {
+                        item.getProduct().getImages().forEach(image -> {
+                            String signedUrl = gcsImageUploadService.generateSignedUrl(image.getImageUrl(), 60); // 60-minute expiration
+                            image.setSignedUrl(signedUrl);
+                        });
+                    }
+                });
+            });
             model.addAttribute("orders", orders);
         }
 

@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>我的訂單</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/order.css}">
 </head>
 <body>
-<div class="container mt-5">
-    <h2>我的訂單</h2>
+<div class="container">
+    <h1>我的訂單</h1>
 
     <!-- If orders list is empty -->
     <div th:if="${orders == null or orders.isEmpty()}" class="text-center mt-5">
@@ -18,22 +18,30 @@
 
     <!-- If orders list is not empty -->
     <div th:if="${orders != null and !orders.isEmpty()}">
-        <div th:each="order : ${orders}" class="card mb-4">
-            <div class="card-header d-flex justify-content-between">
+        <div th:each="order : ${orders}" class="order-card mb-4">
+            <div class="order-card-header">
                 <span>訂單編號: <strong th:text="${order.orderNumber}"></strong></span>
-                <span>狀態: <strong th:text="${order.status}"></strong></span>
+                <span>狀態: <strong th:text="${order.displayStatus}"></strong></span>
+                <span>付款方式: <strong th:text="${order.displayPaymentMethod}"></strong></span>
             </div>
-            <div class="card-body">
-                <ul class="list-group list-group-flush">
-                    <li th:each="item : ${order.items}" class="list-group-item d-flex justify-content-between align-items-center">
-                        <span th:text="${item.product.name}">商品名稱</span>
-                        <span>
-                            數量: <span th:text="${item.quantity}"></span>
-                        </span>
+            <div class="order-card-body">
+                <ul class="order-list-group">
+                    <li th:each="item : ${order.items}" class="order-list-group-item">
+                        <div class="d-flex align-items-center order-item-details">
+                            <img th:if="${item.product.images != null and not #lists.isEmpty(item.product.images)}"
+                                 th:src="${item.product.images[0].signedUrl}"
+                                 alt="Product Image" class="order-product-image mr-3">
+                            <div>
+                                <span th:text="${item.product.name}">商品名稱</span>
+                                <span>數量: <span th:text="${item.quantity}"></span></span>
+                                <span>單價: <span th:text="${item.product.price}"></span></span>
+                                <span>小計: <span th:text="${item.quantity * item.product.price}"></span></span>
+                            </div>
+                        </div>
                     </li>
                 </ul>
             </div>
-            <div class="card-footer text-right">
+            <div class="order-card-footer">
                 <strong>總金額: <span th:text="${order.totalPrice}"></span></strong>
             </div>
         </div>
