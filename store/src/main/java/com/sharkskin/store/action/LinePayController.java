@@ -35,12 +35,13 @@ public class LinePayController  extends HttpServlet{
     @GetMapping("/pay")
     public String pay(@RequestParam String orderNumber,HttpSession session,Model model) throws Exception {
     	System.out.println(orderNumber);
-        Order order = orderService.findByOrderNumber(orderNumber);
-    	System.out.println(order!=null);
-        if (order == null) {
+        Optional<Order> orderOptional = orderService.findByOrderNumber(orderNumber);
+    	System.out.println(orderOptional.isPresent());
+        if (orderOptional.isEmpty()) {
             model.addAttribute("message", "訂單不存在");
             return "my_orders";
         }
+        Order order = orderOptional.get();
         LinePayService linePayService = new LinePayService();
         String paymentUrl = linePayService.requestPayment(order);;
         
@@ -61,11 +62,12 @@ public class LinePayController  extends HttpServlet{
 		System.out.println("TTID"+transactionId);
 
         String orderId = orderNumber.split("-")[0];
-        Order order = orderService.findByOrderNumber(orderId );
-        if (order == null) {
+        Optional<Order> orderOptional = orderService.findByOrderNumber(orderId );
+        if (orderOptional.isEmpty()) {
             model.addAttribute("error", "訂單不存在");
             return "linepay_fail";
         }
+        Order order = orderOptional.get();
         LinepayResponse response=null;
 		try {
 			response = linePayService.confirmPayment(transactionId, order.getTotalPrice());

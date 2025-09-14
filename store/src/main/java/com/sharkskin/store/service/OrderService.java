@@ -34,4 +34,12 @@ public class OrderService {
     public List<Order> findByUserEmail(String email) {
         return orderRepository.findByEmail(email);
     }
+
+    public Optional<Order> findByOrderNumber(String orderNumber) {
+        return orderRepository.findByOrderNumber(orderNumber);
+    }
+
+    public void saveOrder(Order order) {
+        orderRepository.save(order);
+    }
 }
