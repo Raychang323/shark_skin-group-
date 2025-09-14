@@ -1,0 +1,9 @@
+# Ignore IDE generated files
+store/m2e-wtp/
+
+# Ignore Gemini context files
+GEMINI.md
+store/GEMINI.md
+
+# Ignore credentials and secret keys
+shark-skin-*.json
