@@ -11,6 +11,7 @@ import com.sharkskin.store.service.LinePayService;
 import com.sharkskin.store.service.OrderService;
 
 import jakarta.servlet.http.HttpSession;
+import javax.annotation.PostConstruct;
 
 import java.util.Optional;
 
@@ -29,6 +30,9 @@ public class LinePayController {
     private OrderService orderService;
     @Autowired // Add this
     private CartService cartService; // Add this
+
+    
+
     
     
     @GetMapping("/pay")

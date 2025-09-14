@@ -1,5 +1,9 @@
 package com.sharkskin.store.service;
 
+import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import javax.annotation.PostConstruct;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -31,8 +35,10 @@ import com.sharkskin.store.linepay.LinepayResponse;
 import com.sharkskin.store.model.Order;
 import com.sharkskin.store.model.OrderItem;
 
+@Service
 public class LinePayService {
 	
+    @Autowired
     private JavaMailSender mailsend;
 	
     // ==========================
@@ -57,9 +63,12 @@ public class LinePayService {
      * @param order 整筆訂單
      * @return 付款 URL，如果失敗返回 null
      */
-    public LinePayService() {
-        this.restTemplate = new RestTemplate();
+    @Autowired
+    public LinePayService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
     }
+
+    
 
     public String requestPayment(Order order) throws Exception {
     	System.out.println("Rp:"+order!=null);//T
