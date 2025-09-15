@@ -1,16 +1,10 @@
 package com.sharkskin.store.config;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.security.crypto.password.PasswordEncoder; // Import PasswordEncoder
 
-import com.sharkskin.store.model.Order;
-import com.sharkskin.store.model.OrderItem;
-import com.sharkskin.store.model.OrderStatus;
-import com.sharkskin.store.model.PaymentMethod;
 import com.sharkskin.store.model.Product;
 import com.sharkskin.store.model.ProductImage;
 import com.sharkskin.store.model.UserModel;
@@ -30,6 +24,9 @@ public class DataInitializer implements CommandLineRunner {
     @Autowired
     private OrderRepository orderRepository;
 
+    @Autowired // Inject PasswordEncoder
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public void run(String... args) throws Exception {
         // IMPORTANT: If you encounter "No enum constant ... 已付款" error on startup,
@@ -41,7 +38,9 @@ public class DataInitializer implements CommandLineRunner {
         // === Create Users ===
         // UserModel user1 = createUserIfNotFound("test1", "1234", "testuser1@example.com", "USER");
         // createUserIfNotFound("test2", "1234", "testuser2@example.com", "USER");
-        // createUserIfNotFound("admin", "1234", "admin@example.com", "ADMIN"); // Admin user
+        createUserIfNotFound("admin", "a43l", "admin@ex.com", "ADMIN"); // Admin user
+        // Note: The password "a43l" will now be encoded. If you change this password,
+        // make sure to update it here and re-run the application to re-create the user.
 
         // === Create Products ===
         // Product p1 = createProductIfNotFound("p001", "鯊魚皮外套", 3000, 100, Arrays.asList(
@@ -79,7 +78,7 @@ public class DataInitializer implements CommandLineRunner {
         if (!userRepository.existsByUsername(username)) {
             UserModel user = new UserModel();
             user.setUsername(username);
-            user.setPassword(password); // Plain text password
+            user.setPassword(passwordEncoder.encode(password)); // Encode password
             user.setEmail(email);
             user.setRole(role); // Set the role
             System.out.println("Created test user: " + username + " with role: " + role);

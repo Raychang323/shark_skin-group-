@@ -1,12 +1,17 @@
 //邏輯判斷及操作 上：Controller、 下：Repository 
 package com.sharkskin.store.service;
 
+import java.util.Collections; // Import Collections
 import java.util.Optional;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.core.authority.SimpleGrantedAuthority; // Import SimpleGrantedAuthority
+import org.springframework.security.core.userdetails.User; // Import Spring Security User
+import org.springframework.security.core.userdetails.UserDetails; // Import UserDetails
+import org.springframework.security.core.userdetails.UserDetailsService; // Import UserDetailsService
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +20,7 @@ import com.sharkskin.store.model.UserModel;
 import com.sharkskin.store.repositories.UserRepository;
 
 @Service
-public class UserService {
+public class UserService implements UserDetailsService { // Implement UserDetailsService
 	//注入
 	private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -87,12 +92,24 @@ public class UserService {
 			return true;
 }
 	//根據帳號抓使用者資料
-	public UserModel getUserByUsername(String username) {
+	public UserModel getUserByUsername(String username) { // Keep this for internal use if needed
 		return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 		}
-	
 
+    @Override // Implement loadUserByUsername for UserDetailsService
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        UserModel userModel = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+
+        // Convert UserModel to Spring Security's UserDetails object
+        return new User(
+            userModel.getUsername(),
+            userModel.getPassword(),
+            Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + userModel.getRole())) // Assuming role is like "ADMIN", "USER"
+        );
+    }
+	
 	
 		public void sendEmail(UserModel user) {
     SimpleMailMessage message = new SimpleMailMessage();        

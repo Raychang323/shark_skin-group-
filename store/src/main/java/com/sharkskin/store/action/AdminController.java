@@ -63,43 +63,15 @@ public class AdminController {
         return "admin_login";
     }
 
-    @PostMapping("/admin/login")
-    public String adminLogin(@RequestParam String username,
-                             @RequestParam String password,
-                             HttpSession session,
-                             Model model) {
-        UserModel user = userService.getUserByUsername(username);
-        if (user != null && user.getPassword().equals(password) && "ADMIN".equals(user.getRole())) {
-            session.setAttribute("adminUsername", username);
-            return "redirect:/portal/a9x3z7/dashboard";
-        } else {
-            model.addAttribute("message", "帳號或密碼錯誤，或您沒有管理員權限！");
-            return "admin_login";
-        }
-    }
-
     // Admin Dashboard
     @GetMapping("/portal/a9x3z7/dashboard")
     public String showAdminDashboard(HttpSession session) {
-        if (session.getAttribute("adminUsername") == null) {
-            return "redirect:/admin/login"; // Not logged in as admin, redirect to admin login
-        }
         return "admin_dashboard";
-    }
-
-    // Admin Logout
-    @GetMapping("/admin/logout")
-    public String adminLogout(HttpSession session) {
-        session.invalidate(); // Invalidate the admin session
-        return "redirect:/admin/login";
     }
 
     // Product Management - Add Product
     @GetMapping("/admin/add-product")
     public String showAddProductForm(HttpSession session, Model model) {
-        if (session.getAttribute("adminUsername") == null) {
-            return "redirect:/admin/login";
-        }
         return "admin_add_product";
     }
 
@@ -110,9 +82,6 @@ public class AdminController {
                              @RequestParam(value = "imageFiles", required = false) List<MultipartFile> imageFiles, // Change to MultipartFile
                              HttpSession session,
                              Model model) {
-        if (session.getAttribute("adminUsername") == null) {
-            return "redirect:/admin/login";
-        }
 
         List<String> errors = new ArrayList<>();
         List<String> imageUrls = new ArrayList<>(); // To store uploaded image URLs
@@ -187,10 +156,6 @@ public class AdminController {
     @GetMapping("/admin/user-management")
     public String showUserManagement(HttpSession session, Model model,
                                      @RequestParam(name = "sort", defaultValue = "id_asc") String sort) {
-        if (session.getAttribute("adminUsername") == null) {
-            return "redirect:/admin/login";
-        }
-
         List<UserModel> users = userRepository.findAll();
         List<String> usersWithOrders = orderRepository.findAll().stream()
                 .map(order -> order.getEmail())
@@ -236,9 +201,6 @@ public class AdminController {
     @GetMapping("/admin/order-management")
     public String showOrderManagement(HttpSession session, Model model,
                                       @RequestParam(required = false) String status) {
-        if (session.getAttribute("adminUsername") == null) {
-            return "redirect:/admin/login";
-        }
         List<Order> orders;
         if (status != null && !status.isEmpty()) {
             orders = orderService.findOrdersByStatus(status);
@@ -252,9 +214,6 @@ public class AdminController {
 
     @PostMapping("/admin/orders/bulk-update-status")
     public ResponseEntity<?> bulkUpdateOrderStatus(@RequestBody BulkOrderStatusUpdateDto dto, HttpSession session) {
-        if (session.getAttribute("adminUsername") == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("未經授權");
-        }
         if (dto.getOrderNumbers() == null || dto.getOrderNumbers().isEmpty()) {
             return ResponseEntity.badRequest().body("請選擇至少一個訂單進行更新。");
         }
@@ -272,9 +231,6 @@ public class AdminController {
     // Product Management - Toggle Product Listed Status
     @PostMapping("/admin/product/toggle-listed")
     public String toggleProductListedStatus(@RequestParam String productId, HttpSession session) {
-        if (session.getAttribute("adminUsername") == null) {
-            return "redirect:/admin/login";
-        }
         Optional<Product> productOptional = productRepository.findById(productId);
         if (productOptional.isPresent()) {
             Product product = productOptional.get();
@@ -287,10 +243,6 @@ public class AdminController {
     // Product Management - Show Edit Product Form
     @GetMapping("/admin/product/edit/{productId}")
     public String showEditProductForm(@PathVariable String productId, HttpSession session, Model model) {
-        if (session.getAttribute("adminUsername") == null) {
-            return "redirect:/admin/login";
-        }
-
         Optional<Product> productOptional = productRepository.findById(productId);
         if (productOptional.isEmpty()) {
             // Product not found, redirect to product management with an error
@@ -321,10 +273,6 @@ public class AdminController {
                                 @RequestParam(value = "newImageFiles", required = false) List<MultipartFile> newImageFiles,
                                 HttpSession session,
                                 RedirectAttributes redirectAttributes) {
-        if (session.getAttribute("adminUsername") == null) {
-            return "redirect:/admin/login";
-        }
-
         Optional<Product> productOptional = productRepository.findById(productId);
         if (productOptional.isEmpty()) {
             redirectAttributes.addFlashAttribute("message", "商品未找到！");
