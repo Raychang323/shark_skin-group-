@@ -26,6 +26,14 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         HttpSession session = request.getSession();
         cartService.mergeCarts(session);
-        response.sendRedirect("/home");
+        // Check if the authenticated user has the ADMIN role
+        boolean isAdmin = authentication.getAuthorities().stream()
+                                        .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
+
+        if (isAdmin) {
+            response.sendRedirect("/portal/a9x3z7/dashboard");
+        } else {
+            response.sendRedirect("/home");
+        }
     }
 }
