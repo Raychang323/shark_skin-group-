@@ -203,8 +203,9 @@ h1 {
     background-color: #f5fafd; /* 滑鼠經過時的淺藍色 */
 }
 .product-table img {
-    max-width: 200px; /* 將最大寬度調整為150px */
-    height: auto;
+    width: 100px; /* Set a fixed width */
+    height: 100px; /* Set a fixed height to make it square */
+    object-fit: cover; /* Crop the image to cover the area */
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s;

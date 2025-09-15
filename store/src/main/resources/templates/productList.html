@@ -9,6 +9,8 @@
     <link rel="stylesheet" th:href="@{/css/product_list.css}">
      
     </style>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 </head>
 <body>
 
@@ -294,7 +296,10 @@
 
                     fetch('/cart/add', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            [document.querySelector("meta[name='_csrf_header']").getAttribute("content")]: document.querySelector("meta[name='_csrf']").getAttribute("content")
+                        },
                         body: `productId=${productId}&quantity=${quantityToAdd}`
                     }).then(response => {
                         if (response.ok) {

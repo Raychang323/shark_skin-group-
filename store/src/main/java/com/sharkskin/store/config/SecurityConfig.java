@@ -17,6 +17,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException; 
 import org.springframework.security.core.userdetails.User; // Import Spring Security User
 import org.springframework.security.core.authority.SimpleGrantedAuthority; // Import SimpleGrantedAuthority
 import java.util.Collections; // Import Collections
+import org.springframework.core.annotation.Order; // Import Order
 
 
 @Configuration
@@ -61,8 +62,35 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    // Admin Security Filter Chain
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    @Order(1) // Process this chain first
+    public SecurityFilterChain adminSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .securityMatcher("/admin/**", "/portal/**") // Apply this chain to admin and portal paths
+            .authorizeHttpRequests(authorize -> authorize
+                .requestMatchers("/admin/login", "/admin/logout").permitAll() // Admin login/logout are public
+                .anyRequest().hasRole("ADMIN") // All other admin/portal paths require ADMIN role
+            )
+            .formLogin(form -> form
+                .loginPage("/admin/login") // Admin login page
+                .loginProcessingUrl("/admin/login") // Process admin login POST here
+                .failureUrl("/admin/login?error") // Redirect to admin login on failure
+                .successHandler(customAuthenticationSuccessHandler) // Use custom handler
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutUrl("/admin/logout") // Admin logout URL
+                .logoutSuccessUrl("/admin/login") // Redirect to admin login after logout
+                .permitAll()
+            );
+        return http.build();
+    }
+
+    // General User Security Filter Chain
+    @Bean
+    @Order(2) // Process this chain second
+    public SecurityFilterChain userSecurityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(
@@ -74,26 +102,27 @@ public class SecurityConfig {
                     "/verify/**", 
                     "/css/**", 
                     "/js/**", 
-                    "/images/**",
-                    "/admin/login",
-                    "/admin/logout"
-                ).permitAll()
+                    "/images/**"
+                ).permitAll() // Public pages
                 .requestMatchers(
                     "/cart/**", 
                     "/checkout/**", 
-                    "/my_orders/**", 
-                    "/admin/**",
-                    "/portal/a9x3z7/dashboard"
-                ).authenticated()
+                    "/my_orders/**"
+                ).authenticated() // User protected pages
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
-                .loginPage("/login")
-                .successHandler(customAuthenticationSuccessHandler)
+                .loginPage("/login") // General user login page
+                .loginProcessingUrl("/login") // Process general login POST here
+                .failureUrl("/login?error") // Redirect to general login on failure
+                .successHandler(customAuthenticationSuccessHandler) // Use custom handler
                 .permitAll()
             )
             .logout(logout -> logout
-                .permitAll());
+                .logoutUrl("/logout") // General logout URL
+                .logoutSuccessUrl("/login?logout") // Redirect to general login after logout
+                .permitAll()
+            );
         return http.build();
     }
 }

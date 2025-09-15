@@ -37,7 +37,8 @@
             付款方式
         </div>
         <div class="card-body">
-            <form action="/create-order" method="post">
+            <form th:action="@{/create-order}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <div class="form-group">
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="paymentMethod" id="linePay" value="LINE_PAY" checked>

@@ -19,7 +19,7 @@
     <div th:if="${message}" class="alert alert-danger" role="alert">
         <p th:text="${message}"></p>
     </div>
-    <form th:action="@{/login}" method="post">
+    <form th:action="@{/admin/login}" method="post">
         <div class="form-group">
             <label for="username">帳號</label>
             <input type="text" class="form-control" id="username" name="username" required>

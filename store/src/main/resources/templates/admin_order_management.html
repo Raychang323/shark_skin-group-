@@ -5,6 +5,8 @@
     <title>訂單管理</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 <body>
 <div class="container mt-5">
     <h2>訂單管理</h2>
@@ -32,6 +34,7 @@
     <table class="table table-striped">
         <thead>
         <tr>
+            <th><input type="checkbox" id="selectAllOrders"></th> <!-- 全選複選框 -->
             <th>訂單編號</th>
             <th>Email</th>
             <th>訂購商品</th>
@@ -123,6 +126,11 @@
                         orderNumbers: selectedOrderNumbers,
                         newStatus: newStatus
                     }),
+                    beforeSend: function(xhr) {
+                        var token = $("meta[name='_csrf']").attr("content");
+                        var header = $("meta[name='_csrf_header']").attr("content");
+                        xhr.setRequestHeader(header, token);
+                    },
                     success: function(response) {
                         alert('訂單狀態更新成功！');
                         // Refresh the page without full reload

@@ -5,6 +5,8 @@
     <title>管理員儀表板 - 頁面選擇</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" th:href="@{/css/admin_theme.css}">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <style>
         body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f8f9fa; }
         .dashboard-container { background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; max-width: 600px; text-align: center; }
@@ -22,7 +24,10 @@
     <a href="/admin/product-management" class="btn btn-success">商品管理</a>
     <a href="/admin/user-management" class="btn btn-info">會員管理</a>
     <a href="/admin/order-management" class="btn btn-warning">訂單管理</a>
-    <a href="/admin/logout" class="btn btn-danger">登出</a>
+    <form th:action="@{/admin/logout}" method="post" style="display:inline;">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        <button type="submit" class="btn btn-danger">登出</button>
+    </form>
 </div>
 </body>
 </html>

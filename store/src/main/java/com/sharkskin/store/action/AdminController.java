@@ -75,6 +75,23 @@ public class AdminController {
         return "admin_add_product";
     }
 
+    // Product Management - List Products
+    @GetMapping("/admin/product-management")
+    public String showProductManagement(HttpSession session, Model model) {
+        List<Product> products = productRepository.findAll();
+        // Generate signed URLs for each product image
+        for (Product product : products) {
+            if (product.getImages() != null) {
+                for (ProductImage image : product.getImages()) {
+                    String signedUrl = gcsImageUploadService.generateSignedUrl(image.getImageUrl(), 60); // 60-minute expiration
+                    image.setSignedUrl(signedUrl);
+                }
+            }
+        }
+        model.addAttribute("products", products);
+        return "admin_product_management";
+    }
+
     @PostMapping("/admin/add-product")
     public String addProduct(@RequestParam String name,
                              @RequestParam String price,
@@ -273,73 +290,81 @@ public class AdminController {
                                 @RequestParam(value = "newImageFiles", required = false) List<MultipartFile> newImageFiles,
                                 HttpSession session,
                                 RedirectAttributes redirectAttributes) {
-        Optional<Product> productOptional = productRepository.findById(productId);
-        if (productOptional.isEmpty()) {
-            redirectAttributes.addFlashAttribute("message", "商品未找到！");
+        try { // Add a try-catch block for the entire method
+            Optional<Product> productOptional = productRepository.findById(productId);
+            if (productOptional.isEmpty()) {
+                redirectAttributes.addFlashAttribute("message", "商品未找到！");
+                return "redirect:/admin/product-management";
+            }
+
+            Product product = productOptional.get();
+
+            // --- Update basic product details ---
+            product.setName(name);
+            try {
+                product.setPrice(Integer.parseInt(price));
+            } catch (NumberFormatException e) {
+                redirectAttributes.addFlashAttribute("message", "價格格式不正確！");
+                return "redirect:/admin/product/edit/" + productId;
+            }
+            try {
+                product.setStock(Integer.parseInt(stock));
+            } catch (NumberFormatException e) {
+                redirectAttributes.addFlashAttribute("message", "庫存格式不正確！");
+                return "redirect:/admin/product/edit/" + productId;
+            }
+
+            // --- Handle image deletion ---
+            if (imagesToDelete != null && !imagesToDelete.isEmpty()) {
+                List<ProductImage> imagesToRemove = new ArrayList<>();
+                for (Long imageId : imagesToDelete) {
+                    Optional<ProductImage> imgOptional = productImageRepository.findById(imageId);
+                    if (imgOptional.isPresent()) {
+                        ProductImage img = imgOptional.get();
+                        // Delete from GCS
+                        gcsImageUploadService.deleteFile(img.getImageUrl());
+                        imagesToRemove.add(img);
+                    }
+                }
+                // Remove from product\'s image list and database
+                product.getImages().removeAll(imagesToRemove);
+                productImageRepository.deleteAll(imagesToRemove);
+            }
+
+            // --- Handle new image uploads ---
+            int currentImageCount = product.getImages() != null ? product.getImages().size() : 0;
+            final int MAX_IMAGES = 10;
+
+            if (newImageFiles != null && !newImageFiles.isEmpty()) {
+                for (MultipartFile file : newImageFiles) {
+                    if (!file.isEmpty()) {
+                        if (currentImageCount >= MAX_IMAGES) {
+                            redirectAttributes.addFlashAttribute("message", "圖片數量已達上限（" + MAX_IMAGES + "張）！");
+                            break; // Stop processing new files
+                        }
+                        try {
+                            String imageUrl = gcsImageUploadService.uploadFile(file);
+                            product.addImage(new ProductImage(imageUrl, product));
+                            currentImageCount++;
+                        } catch (IOException e) {
+                            redirectAttributes.addFlashAttribute("message", "圖片上傳失敗: " + file.getOriginalFilename());
+                            // Log the error e.printStackTrace();
+                        }
+                    }
+                }
+            }
+
+            // --- Save updated product ---
+            productRepository.save(product);
+
+            redirectAttributes.addFlashAttribute("successMessage", "商品更新成功！");
             return "redirect:/admin/product-management";
+        } catch (Exception e) {
+            // Log the exception for debugging
+            e.printStackTrace(); // Or use a proper logger
+
+            redirectAttributes.addFlashAttribute("message", "商品更新失敗，發生未知錯誤：" + e.getMessage());
+            return "redirect:/admin/product-management"; // Redirect to product management with an error
         }
-
-        Product product = productOptional.get();
-
-        // --- Update basic product details ---
-        product.setName(name);
-        try {
-            product.setPrice(Integer.parseInt(price));
-        } catch (NumberFormatException e) {
-            redirectAttributes.addFlashAttribute("message", "價格格式不正確！");
-            return "redirect:/admin/product/edit/" + productId;
-        }
-        try {
-            product.setStock(Integer.parseInt(stock));
-        } catch (NumberFormatException e) {
-            redirectAttributes.addFlashAttribute("message", "庫存格式不正確！");
-            return "redirect:/admin/product/edit/" + productId;
-        }
-
-        // --- Handle image deletion ---
-        if (imagesToDelete != null && !imagesToDelete.isEmpty()) {
-            List<ProductImage> imagesToRemove = new ArrayList<>();
-            for (Long imageId : imagesToDelete) {
-                Optional<ProductImage> imgOptional = productImageRepository.findById(imageId);
-                if (imgOptional.isPresent()) {
-                    ProductImage img = imgOptional.get();
-                    // Delete from GCS
-                    gcsImageUploadService.deleteFile(img.getImageUrl());
-                    imagesToRemove.add(img);
-                }
-            }
-            // Remove from product's image list and database
-            product.getImages().removeAll(imagesToRemove);
-            productImageRepository.deleteAll(imagesToRemove);
-        }
-
-        // --- Handle new image uploads ---
-        int currentImageCount = product.getImages() != null ? product.getImages().size() : 0;
-        final int MAX_IMAGES = 10;
-
-        if (newImageFiles != null && !newImageFiles.isEmpty()) {
-            for (MultipartFile file : newImageFiles) {
-                if (!file.isEmpty()) {
-                    if (currentImageCount >= MAX_IMAGES) {
-                        redirectAttributes.addFlashAttribute("message", "圖片數量已達上限（" + MAX_IMAGES + "張）！");
-                        break; // Stop processing new files
-                    }
-                    try {
-                        String imageUrl = gcsImageUploadService.uploadFile(file);
-                        product.addImage(new ProductImage(imageUrl, product));
-                        currentImageCount++;
-                    } catch (IOException e) {
-                        redirectAttributes.addFlashAttribute("message", "圖片上傳失敗: " + file.getOriginalFilename());
-                        // Log the error e.printStackTrace();
-                    }
-                }
-            }
-        }
-
-        // --- Save updated product ---
-        productRepository.save(product);
-
-        redirectAttributes.addFlashAttribute("successMessage", "商品更新成功！");
-        return "redirect:/admin/product-management";
     }
 }

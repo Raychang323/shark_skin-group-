@@ -2,9 +2,14 @@ package com.sharkskin.store.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
-import org.springframework.security.crypto.password.PasswordEncoder; // Import PasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component; // Import PasswordEncoder
+import java.util.Arrays; // Import Arrays
 
+import com.sharkskin.store.model.Order;
+import com.sharkskin.store.model.OrderItem;
+import com.sharkskin.store.model.OrderStatus;
+import com.sharkskin.store.model.PaymentMethod;
 import com.sharkskin.store.model.Product;
 import com.sharkskin.store.model.ProductImage;
 import com.sharkskin.store.model.UserModel;
@@ -36,42 +41,41 @@ public class DataInitializer implements CommandLineRunner {
         // Or, if you have other old string statuses, map them to appropriate enum values.
 
         // === Create Users ===
-        // UserModel user1 = createUserIfNotFound("test1", "1234", "testuser1@example.com", "USER");
-        // createUserIfNotFound("test2", "1234", "testuser2@example.com", "USER");
+        UserModel user1 = createUserIfNotFound("test1", "1234", "test1@ex.com", "USER"); // New default user
         createUserIfNotFound("admin", "a43l", "admin@ex.com", "ADMIN"); // Admin user
         // Note: The password "a43l" will now be encoded. If you change this password,
         // make sure to update it here and re-run the application to re-create the user.
 
         // === Create Products ===
-        // Product p1 = createProductIfNotFound("p001", "鯊魚皮外套", 3000, 100, Arrays.asList(
-        //         "https://via.placeholder.com/200/00BFFF/FFFFFF?text=Product+1_View1",
-        //         "https://via.placeholder.com/200/00BFFF/FFFFFF?text=Product+1_View2"
-        // ));
-        // Product p2 = createProductIfNotFound("p002", "鯊魚造型帽", 800, 50, Arrays.asList(
-        //         "https://via.placeholder.com/200/00BFFF/FFFFFF?text=Product+2_View1"
-        // ));
-        // Product p3 = createProductIfNotFound("p003", "鯊魚腳蹼", 1200, 200, Arrays.asList(
-        //         "https://via.placeholder.com/200/00BFFF/FFFFFF?text=Product+3_View1"
-        // ));
+        Product p1 = createProductIfNotFound("p001", "鯊魚皮外套", 3000, 100, Arrays.asList(
+                "https://via.placeholder.com/200/00BFFF/FFFFFF?text=Product+1_View1",
+                "https://via.placeholder.com/200/00BFFF/FFFFFF?text=Product+1_View2"
+        ));
+        Product p2 = createProductIfNotFound("p002", "鯊魚造型帽", 800, 50, Arrays.asList(
+                "https://via.placeholder.com/200/00BFFF/FFFFFF?text=Product+2_View1"
+        ));
+        Product p3 = createProductIfNotFound("p003", "鯊魚腳蹼", 1200, 200, Arrays.asList(
+                "https://via.placeholder.com/200/00BFFF/FFFFFF?text=Product+3_View1"
+        ));
 
-        // === Create an Order for testuser1 if they have no orders ===
-        // if (user1 != null && orderRepository.findByEmail(user1.getEmail()).isEmpty()) {
-        //     Order order1 = new Order("ORD001", user1.getEmail(), OrderStatus.PROCESSING, PaymentMethod.CASH_ON_DELIVERY, 0);
+        //=== Create an Order for testuser1 if they have no orders ===
+        if (user1 != null && orderRepository.findByEmail(user1.getEmail()).isEmpty()) {
+            Order order1 = new Order("ORD001", user1.getEmail(), OrderStatus.PROCESSING, PaymentMethod.CASH_ON_DELIVERY, 0);
 
-        //     OrderItem item1 = new OrderItem(p1, 1);
-        //     OrderItem item2 = new OrderItem(p2, 2);
+            OrderItem item1 = new OrderItem(p1, 1);
+            OrderItem item2 = new OrderItem(p2, 2);
 
-        //     order1.addOrderItem(item1);
-        //     order1.addOrderItem(item2);
+            order1.addOrderItem(item1);
+            order1.addOrderItem(item2);
 
-        //     double totalPrice = order1.getItems().stream()
-        //             .mapToDouble(item -> item.getProduct().getPrice() * item.getQuantity())
-        //             .sum();
-        //     order1.setTotalPrice(totalPrice);
+            double totalPrice = order1.getItems().stream()
+                    .mapToDouble(item -> item.getProduct().getPrice() * item.getQuantity())
+                    .sum();
+            order1.setTotalPrice(totalPrice);
 
-        //     orderRepository.save(order1);
-        //     System.out.println("Created test order ORD001 for user: " + user1.getUsername());
-        // }
+            orderRepository.save(order1);
+            System.out.println("Created test order ORD001 for user: " + user1.getUsername());
+        }
     }
 
     private UserModel createUserIfNotFound(String username, String password, String email, String role) {

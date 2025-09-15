@@ -25,6 +25,8 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         HttpSession session = request.getSession();
+        String username = authentication.getName();
+        session.setAttribute("username", username);
         cartService.mergeCarts(session);
         // Check if the authenticated user has the ADMIN role
         boolean isAdmin = authentication.getAuthorities().stream()

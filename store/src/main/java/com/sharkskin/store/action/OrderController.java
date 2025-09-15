@@ -66,9 +66,6 @@ public class OrderController {
     @GetMapping("/my-orders")
     public String showMyOrders(HttpSession session, Model model) {
         String username = (String) session.getAttribute("username");
-        if (username == null) {
-            return "redirect:/login"; // Not logged in, redirect to login
-        }
 
         UserModel user = userService.getUserByUsername(username);
         if (user != null) {
@@ -92,9 +89,6 @@ public class OrderController {
     @PostMapping("/create-order")
     public String createOrder(HttpSession session, @RequestParam String paymentMethod) {
         String username = (String) session.getAttribute("username");
-        if (username == null) {
-            return "redirect:/login";
-        }
 
         UserModel user = userService.getUserByUsername(username);
         Cart cart = cartService.getCart(session);
