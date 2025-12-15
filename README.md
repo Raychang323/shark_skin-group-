@@ -225,6 +225,8 @@ spring.security.user.password=CHANGE_ME  # 修改默認密碼
 
 - **Samuel Liang** - 項目初始化與核心功能開發
 - **RayChang** - 用戶認證系統與訂單管理功能
+- **ass860528** - 網頁前端UI/UX設計
+
 
 ## 📄 許可證
 
